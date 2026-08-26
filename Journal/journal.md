@@ -1,0 +1,4 @@
+08/19/26
+1. I have prior experience with C++ and Python, but only at an introductory level. I have done some basic numerical simulations and graphing in previous physics classes, but they have been very short-form. Since I have only introductory knowledge, figuring out how to expand and apply this knowledge more extensively is a bit intimidating.
+2. I am excited to write code that simulates physical systems as I think this is a quite practical and important skill. This, I think, will certainly be useful beyond this course, and will be a skill I develop over years to come. I have no ideas yet of what exactly I will simulate, but anywhere I believe is a good start.
+3. I actually had much of the libraries downloaded from previous courses, and I also had a GitHub account already. The only new thing was setting up a repository, which I have not done, but it was quite striaghtforward.
