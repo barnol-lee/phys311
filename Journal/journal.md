@@ -5,3 +5,7 @@
 
 08/30/26
 1. Reflection on first numerical solve. Overall, I though this first project or lab was quite simple. Most of the difficulties involved were just working out turning physics logic into python logic, since I don't have that much experience with python. For example, I ran into difficulties trying multiply arrays, which I then found one can vectorize them for point-wise multiplication, and I had difficulties getting around the fact that passing an array through a function causes problems if that function has a while loop. I could have modified the function to fix it, but I didn't want to change what the project gave me too much. All in all, I think these simulations are really cool, and I am excited to do more in the future.
+
+09/06/2026
+1. During my first simulation, I was actually wondering to myself how we could check the accuracy of the simulation, and I was happy to see that this second coding lab was concerned with exactly this question. In some respects, the growing error is quite predictable, given that we have to work with time-steps, but being able to quantify the error exactly is very helpful. Although simulations are useful, it is absolutely necessary that we be on guard against all the errors that can accrue due to the simple fact of using time-steps, and lasering in on conservations laws, like Energy Conservation, allows us to have a rather robust test against any mis-representations. Overall, I enjoyed the lab.
+2. For this lab, I did not have any coding difficulties to report.
