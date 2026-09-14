@@ -9,3 +9,6 @@
 09/06/2026
 1. During my first simulation, I was actually wondering to myself how we could check the accuracy of the simulation, and I was happy to see that this second coding lab was concerned with exactly this question. In some respects, the growing error is quite predictable, given that we have to work with time-steps, but being able to quantify the error exactly is very helpful. Although simulations are useful, it is absolutely necessary that we be on guard against all the errors that can accrue due to the simple fact of using time-steps, and lasering in on conservations laws, like Energy Conservation, allows us to have a rather robust test against any mis-representations. Overall, I enjoyed the lab.
 2. For this lab, I did not have any coding difficulties to report.
+
+09/13/2026
+1. For this lab, I have been thinking hard about the concept of phase space and how I can better understand dynamical systems through this framework. I think it is interesting but it is difficut to change my immediate thought-processes relating to systems I already understand. For example, it took me some time to properly interpret what the phase portraits we made were supposed to be telling us. The concept of reducing physics to a vector that we update in a complicated, high-dimensional space is very attractive to my brain.
