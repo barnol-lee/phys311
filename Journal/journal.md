@@ -12,3 +12,6 @@
 
 09/13/2026
 1. For this lab, I have been thinking hard about the concept of phase space and how I can better understand dynamical systems through this framework. I think it is interesting but it is difficut to change my immediate thought-processes relating to systems I already understand. For example, it took me some time to properly interpret what the phase portraits we made were supposed to be telling us. The concept of reducing physics to a vector that we update in a complicated, high-dimensional space is very attractive to my brain.
+
+09/20/2026
+1. This lab, I did not have much difficulty with the physics concepts really, but my inexperience with coding has been catching up to me. I had quite a hard time trying to figure out how to do the walls, so part B of the lab caused me quite the headache. I was a aware that I could just check for collision for each ball near each wall, but I thought that would be too cumbersome and sought out more clever methods. I did figure out a way, but it felt very clumsy and I caused many bugs in the process. I ought to read a bit more about python to allieviate this.
