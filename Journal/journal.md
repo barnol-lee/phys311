@@ -15,3 +15,6 @@
 
 09/20/2026
 1. This lab, I did not have much difficulty with the physics concepts really, but my inexperience with coding has been catching up to me. I had quite a hard time trying to figure out how to do the walls, so part B of the lab caused me quite the headache. I was a aware that I could just check for collision for each ball near each wall, but I thought that would be too cumbersome and sought out more clever methods. I did figure out a way, but it felt very clumsy and I caused many bugs in the process. I ought to read a bit more about python to allieviate this.
+
+09/27/2026
+1. I think some of the coding is starting to make more sense. Working with arrays is becoming more intuitive, and I am able to more easily translate the physics into code. 
