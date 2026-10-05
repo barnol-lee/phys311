@@ -18,3 +18,6 @@
 
 09/27/2026
 1. I think some of the coding is starting to make more sense. Working with arrays is becoming more intuitive, and I am able to more easily translate the physics into code. 
+
+10/04/2026
+1. I think the most interesting concept in this lab (and others too) was how we use conservation laws as diagnostic tools. We have of course been working on this for a while, but I suppose it has been solidifying in my mind. Angular velocity in particular seems quite powerful for detecting errors in multibody simulations because all of the mementum vectors have to be calculated accurately. If velocity at any point isn't being calculated right, the total angular moemntum will show it. I think that is rather powerful.
