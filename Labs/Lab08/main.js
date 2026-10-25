@@ -4,7 +4,7 @@ const x = new Vec2(10,5);
 const y = new Vec2(-5,2);
 const z = new Vec2(1,-1);
 
-console.log(`Starting Vectors: (${x}, ${y}, ${z})`);
+console.log("Starting Vectors:", x, y, z);
 
 x.add(y);
 console.log(x);
@@ -17,5 +17,5 @@ console.log(y);
 x.addTo(x);
 console.log(x);
 
-console.log(`Ending Vectors: (${x}, ${y}, ${z})`);
+console.log("Ending Vectors:", x, y, z);
 
