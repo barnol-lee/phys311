@@ -45,13 +45,16 @@ class Camera {
   }
 }
 
+
+const camera = new Camera(canvas, 50, 0, 0);
+
 //Line
 ctx.beginPath();
 ctx.strokeStyle = "#4ade80";
 ctx.lineWidth = 2;
 
-const lstart = Camera.toScreen({ x: -100, y: 0 });
-const lend = Camera.toScreen({ x: 100, y: 0 });
+const lstart = camera.toScreen({ x: -100, y: 0 });
+const lend = camera.toScreen({ x: 100, y: 0 });
 
 ctx.moveTo(lstart.x, lstart.y);
 ctx.lineTo(lend.x, lend.y);
@@ -61,8 +64,8 @@ ctx.stroke();
 const centerWorld = { x: 2, y: 3 };
 const radiusWorld = 0.3;
 
-const centerScreen = Camera.toScreen(centerWorld);
-const radiusScreen = radiusWorld * Camera.scale;
+const centerScreen = camera.toScreen(centerWorld);
+const radiusScreen = radiusWorld * camera.scale;
 
 ctx.beginPath();
 ctx.arc(centerScreen.x, centerScreen.y, radiusScreen, 0, 2 * Math.PI);
@@ -75,17 +78,17 @@ ctx.stroke();
 //Tick Marks
 ctx.fillStyle = "#64748b";
 
-const worldLeft = Camera.toWorld(0, 0).x;
-const worldRight = Camera.toWorld(Camera.canvas.width, 0).x;
-const worldBottom = Camera.toWorld(0, Camera.canvas.height).y;
-const worldTop = Camera.toWorld(0, 0).y;
+const worldLeft = camera.toWorld(0, 0).x;
+const worldRight = camera.toWorld(camera.canvas.width, 0).x;
+const worldBottom = camera.toWorld(0, camera.canvas.height).y;
+const worldTop = camera.toWorld(0, 0).y;
 
 for (let x = Math.floor(worldLeft); x <= Math.ceil(worldRight); x++) {
-const xTick = Camera.toScreen({ x: x, y: 0 });
+const xTick = camera.toScreen({ x: x, y: 0 });
 ctx.fillText(`|${x}m`, xTick.x - 3, xTick.y + 3);
 }
 for (let y = Math.floor(worldBottom); y <= Math.ceil(worldTop); y++) {
-    const yTick = Camera.toScreen({ x: 0, y: y });
+    const yTick = camera.toScreen({ x: 0, y: y });
     ctx.fillText(`— ${y}m`, yTick.x - 4, yTick.y + 4);
 }
 
