@@ -1,13 +1,6 @@
 const canvas = document.getElementById("sim");
 const ctx = canvas.getContext("2d");
 
-ctx.fillStyle = "#ff8200";
-ctx.beginPath();
-ctx.arc(400, 300, 20, 0, 2 * Math.PI);
-ctx.fill();
-
-
-
 import { Vec2 } from './vec2.js';
 
 /*//VECTOR OPERATIONS TEST
@@ -96,3 +89,4 @@ for (let y = Math.floor(worldBottom); y <= Math.ceil(worldTop); y++) {
     ctx.fillText(`— ${y}m`, yTick.x - 4, yTick.y + 4);
 }
 
+render();
