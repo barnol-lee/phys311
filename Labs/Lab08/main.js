@@ -3,7 +3,8 @@ const ctx = canvas.getContext("2d");
 
 import { Vec2 } from './vec2.js';
 
-/*//VECTOR OPERATIONS TEST
+/*
+//VECTOR OPERATIONS TEST
 let x = new Vec2(10,5);
 let y = new Vec2(-5,2);
 let z = new Vec2(1,-1);
@@ -44,10 +45,10 @@ class Camera {
     );
   }
 }
+const camera = new Camera(canvas, 50, -3, -3);
 
-
-const camera = new Camera(canvas, 50, 0, 0);
-
+/*
+CAMERA TEST
 //Line
 ctx.beginPath();
 ctx.strokeStyle = "#4ade80";
@@ -91,5 +92,94 @@ for (let y = Math.floor(worldBottom); y <= Math.ceil(worldTop); y++) {
     const yTick = camera.toScreen({ x: 0, y: y });
     ctx.fillText(`— ${y}m`, yTick.x - 4, yTick.y + 4);
 }
-
 render();
+*/
+
+//ENGINE
+
+//BODY
+class Body {
+  constructor(x, y, vx, vy, m = 1, radius = 10) {
+    this.pos = new Vec2(x, y);
+    this.vel = new Vec2(vx, vy);
+    this.acc = new Vec2(0, 0);
+    this.force = new Vec2(0, 0);
+    this.m = m;
+    this.radius = radius;
+  }
+
+  kineticEnergy() {
+    return 0.5 * this.m * this.vel.lengthSq();
+  }
+
+  clearForce() {
+    this.force.set(0, 0);
+  }
+}
+
+//INTEGRATORS
+class EulerCromer {
+    constructor() {
+        this.name = "Euler Cromer";
+    }
+
+    step(bodies, dt, computeForces) {
+        for (const b of bodies) {
+            b.clearForce();
+        }
+        computeForces(bodies);
+        
+        for (const b of bodies) {
+            const inv_m = 1.0 / b.m;
+            
+            b.vel.addScaled(b.force, inv_m * dt);
+            b.pos.addScaled(b.vel, dt);
+        }
+    }
+}
+
+class Euler {
+    constructor() {
+        this.name = "Euler";
+    }
+
+    step(bodies, dt, computeForces) {
+        for (const b of bodies) {
+            b.clearForce();
+        }
+        computeForces(bodies);
+        
+        for (const b of bodies) {
+            const inv_m = 1.0 / b.m;
+            
+            b.pos.addScaled(b.vel, dt);
+            b.vel.addScaled(b.force, inv_m * dt);
+        }
+    }
+}
+
+
+//ACCUMULATOR LOOP
+const DT = 1 / 120;        
+const MAX_FRAME = 0.25;  
+
+let lastTime = 0;
+let accumulator = 0;
+
+function loop(timestamp) {
+  if (!lastTime) lastTime = timestamp;
+  let frameTime = (timestamp - lastTime) / 1000;
+  lastTime = timestamp;
+
+  if (frameTime > MAX_FRAME) frameTime = MAX_FRAME;
+  accumulator += frameTime;
+
+  while (accumulator >= DT) {
+    world.step(DT);        
+    accumulator -= DT;
+  }
+
+  render(world);           
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
