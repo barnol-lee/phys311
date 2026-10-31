@@ -1,0 +1,21 @@
+body {
+  margin: 0;
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+canvas {
+  border: 2px solid #333;
+  background-color: #111;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+#metrics {
+  margin-top: 15px;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
