@@ -3,7 +3,7 @@ const ctx = canvas.getContext("2d");
 
 import { Vec2 } from './vec2.js';
 
-/*
+/* //PART A, 1
 //VECTOR OPERATIONS TEST
 let x = new Vec2(10,5);
 let y = new Vec2(-5,2);
@@ -47,7 +47,7 @@ class Camera {
 }
 const camera = new Camera(canvas, 50, -3, -3);
 
-/*
+/* //PART A, 2
 CAMERA TEST
 //Line
 ctx.beginPath();
@@ -97,65 +97,86 @@ render();
 
 //ENGINE
 
-//BODY
-class Body {
-  constructor(x, y, vx, vy, m = 1, radius = 10) {
-    this.pos = new Vec2(x, y);
-    this.vel = new Vec2(vx, vy);
-    this.acc = new Vec2(0, 0);
-    this.force = new Vec2(0, 0);
-    this.m = m;
-    this.radius = radius;
+//WORLD
+class World {
+  constructor(integrator) {
+    this.bodies = []; this.forces = [];
+    this.integrator = integrator;
+    this.time = 0; this.steps = 0;
+  }
+  add(b)      { this.bodies.push(b); return b; }
+  addForce(f) { this.forces.push(f); return f; }
+
+  clearForces() { for (const b of this.bodies) b.force.zero(); }
+  applyForces() { for (const f of this.forces) f.apply(this); }
+
+  primeAccelerations() {
+    this.clearForces(); this.applyForces();
+    for (const b of this.bodies) {
+      if (b.fixed) continue;
+      b.acc.set(b.force.x * b.invMass, b.force.y * b.invMass);
+    }
+  }
+
+  step(dt) {
+    this.clearForces();
+    this.applyForces();
+    this.integrator.step(this, dt);
+    this.time += dt;
+    this.steps += 1;
   }
 
   kineticEnergy() {
-    return 0.5 * this.m * this.vel.lengthSq();
+    let K = 0;
+    for (const b of this.bodies) if (!b.fixed) K += 0.5 * b.mass * b.vel.lengthSq();
+    return K;
   }
+  potentialEnergy() {
+    let U = 0;
+    for (const f of this.forces) if (f.potentialEnergy) U += f.potentialEnergy(this);
+    return U;
+  }
+  totalEnergy() { return this.kineticEnergy() + this.potentialEnergy(); }
+}
 
-  clearForce() {
-    this.force.set(0, 0);
+//BODY
+class Body {
+  constructor({ mass = 1, pos = new Vec2(), vel = new Vec2(), radius = 0.25,
+                color = "#ff8200", fixed = false } = {}) {
+    this.mass = mass;
+    this.invMass = fixed ? 0 : 1 / mass;
+    this.pos = pos.clone();
+    this.vel = vel.clone();
+    this.acc = new Vec2();
+    this.force = new Vec2();
+    this.radius = radius;
+    this.color = color;
+    this.fixed = fixed;
+    this.trail = [];
   }
 }
 
 //INTEGRATORS
-class EulerCromer {
-    constructor() {
-        this.name = "Euler Cromer";
+class Euler {
+  step(world, dt) {
+    for (const b of world.bodies) {
+      if (b.fixed) continue;
+      b.acc.set(b.force.x * b.invMass, b.force.y * b.invMass);
+      b.pos.addScaled(b.vel, dt);
+      b.vel.addScaled(b.acc, dt);
     }
-
-    step(bodies, dt, computeForces) {
-        for (const b of bodies) {
-            b.clearForce();
-        }
-        computeForces(bodies);
-        
-        for (const b of bodies) {
-            const inv_m = 1.0 / b.m;
-            
-            b.vel.addScaled(b.force, inv_m * dt);
-            b.pos.addScaled(b.vel, dt);
-        }
-    }
+  }
 }
 
-class Euler {
-    constructor() {
-        this.name = "Euler";
+class EulerCromer {
+  step(world, dt) {
+    for (const b of world.bodies) {
+      if (b.fixed) continue;
+      b.acc.set(b.force.x * b.invMass, b.force.y * b.invMass);
+      b.vel.addScaled(b.acc, dt);  
+      b.pos.addScaled(b.vel, dt);
     }
-
-    step(bodies, dt, computeForces) {
-        for (const b of bodies) {
-            b.clearForce();
-        }
-        computeForces(bodies);
-        
-        for (const b of bodies) {
-            const inv_m = 1.0 / b.m;
-            
-            b.pos.addScaled(b.vel, dt);
-            b.vel.addScaled(b.force, inv_m * dt);
-        }
-    }
+  }
 }
 
 
@@ -183,3 +204,90 @@ function loop(timestamp) {
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
+
+
+//PART B: The Ported Integrator
+//GRAVITY
+class Gravity {
+  constructor(g = -9.81) {
+    this.g = g;
+  }
+  apply(world) {
+    for (const b of world.bodies) {
+      if (b.fixed) continue;
+      b.force.y += b.mass * this.g;
+    }
+  }
+  potentialEnergy(world) {
+    let U = 0;
+    for (const b of world.bodies) {
+      if (b.fixed) continue;
+      U += b.mass * (-this.g) * b.pos.y;
+    }
+    return U;
+  }
+}
+
+//Projectile
+const speed = 20;
+const angleDegrees = 50;
+const angleRadians = angleDegrees * (Math.PI / 180);
+const vx = speed * Math.cos(angleRadians);
+const vy = speed * Math.sin(angleRadians);
+const world = new World(new EulerCromer());
+
+world.addForce(new Gravity(-9.81));
+
+const projectile = world.add(new Body({
+  mass: 1,
+  pos: new Vec2(0, 0),
+  vel: new Vec2(vx, vy),
+  radius: 0.25,
+  color: "#ff8200"
+}));
+
+//RENDER
+function render(world, canvas, ctx, camera) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  const groundLeft = camera.toScreen(new Vec2(-10, 0));
+  const groundRight = camera.toScreen(new Vec2(50, 0));
+  ctx.beginPath();
+  ctx.moveTo(groundLeft.x, groundLeft.y);
+  ctx.lineTo(groundRight.x, groundRight.y);
+  ctx.strokeStyle = "#444444";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  for (const b of world.bodies) {
+    
+    if (b.trail.length > 1) {
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = b.color;
+      
+      for (let i = 1; i < b.trail.length; i++) {
+        const p1 = camera.toScreen(b.trail[i - 1]);
+        const p2 = camera.toScreen(b.trail[i]);
+        const alpha = i / b.trail.length; 
+        
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.globalAlpha = alpha;
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1.0; 
+    }
+
+    const screenPos = camera.toScreen(b.pos);
+    const screenRadius = b.radius * camera.scale; 
+
+    ctx.beginPath();
+    ctx.arc(screenPos.x, screenPos.y, screenRadius, 0, Math.PI * 2);
+    ctx.fillStyle = b.color;
+    ctx.fill();
+    ctx.closePath();
+  }
+}
+
+
