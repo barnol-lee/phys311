@@ -222,8 +222,8 @@ const projectile = world.add(new Body({
   color: "#ff8200"
 }));
 
-//PART C, 1 HEADLESS COMPUTAIION
-console.log("=== HEADLESS COMPUTATION STARTED ===");
+//PART C, 1 COMPUTAIION
+console.log("=== COMPUTATION STARTED ===");
 console.log("Time (s) | Pos X (m) | Pos Y (m) | |V| (m/s) | KE (J) | PE (J) | Total E (J)");
 console.log("---------------------------------------------------------------------------------");
 
@@ -256,10 +256,21 @@ while (hWorld.steps === 0 || gProjectile.pos.y > 0 || gProjectile.vel.y > 0) {
   }
   hCounter++;
 }
+const finalX = gProjectile.pos.x;
+const finalY = gProjectile.pos.y;
+const finalVx = gProjectile.vel.x;
+const finalVy = gProjectile.vel.y;
+const finalEnergy = hWorld.totalEnergy();
 
 console.log("---------------------------------------------------------------------------------");
-console.log("Touchdown at X: " + gProjectile.pos.x.toFixed(3) + "m, Time: " + hWorld.time.toFixed(3) + "s");
-console.log("=== HEADLESS COMPUTATION COMPLETED ===");
+console.log("TOUCHDOWN STATE VECTOR DETAILS:");
+console.log("Final Flight Time   : " + hWorld.time.toFixed(3) + " s");
+console.log("Final Pos X         : " + finalX.toFixed(3) + " m");
+console.log("Final Pos Y         : " + finalY.toFixed(3) + " m");
+console.log("Final Vel VX        : " + finalVx.toFixed(3) + " m/s");
+console.log("Final Vel VY        : " + finalVy.toFixed(3) + " m/s");
+console.log("Final Total Energy  : " + finalEnergy.toFixed(3) + " J");
+console.log("=== COMPUTATION COMPLETED ===");
 
 
 //RENDER
