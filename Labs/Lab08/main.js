@@ -222,6 +222,46 @@ const projectile = world.add(new Body({
   color: "#ff8200"
 }));
 
+//PART C, 1 HEADLESS COMPUTAIION
+console.log("=== HEADLESS COMPUTATION STARTED ===");
+console.log("Time (s) | Pos X (m) | Pos Y (m) | |V| (m/s) | KE (J) | PE (J) | Total E (J)");
+console.log("---------------------------------------------------------------------------------");
+
+const hWorld = new World(new EulerCromer());
+hWorld.addForce(new Gravity(-9.81));
+
+const gProjectile = hWorld.add(new Body({
+  mass: 1,
+  pos: new Vec2(0, 0),
+  vel: new Vec2(vx, vy)
+}));
+
+let hCounter = 0;
+const hDT = 1 / 120;
+
+while (hWorld.steps === 0 || gProjectile.pos.y > 0 || gProjectile.vel.y > 0) {
+  hWorld.step(hDT);
+
+  if (hCounter % 10 === 0) {
+    const vMag = gProjectile.vel.length();
+    console.log(
+      hWorld.time.toFixed(3) + "s | " +
+      gProjectile.pos.x.toFixed(3) + "m | " +
+      gProjectile.pos.y.toFixed(3) + "m | " +
+      vMag.toFixed(3) + "m/s | " +
+      hWorld.kineticEnergy().toFixed(3) + "J | " +
+      hWorld.potentialEnergy().toFixed(3) + "J | " +
+      hWorld.totalEnergy().toFixed(3) + "J"
+    );
+  }
+  hCounter++;
+}
+
+console.log("---------------------------------------------------------------------------------");
+console.log("Touchdown at X: " + gProjectile.pos.x.toFixed(3) + "m, Time: " + hWorld.time.toFixed(3) + "s");
+console.log("=== HEADLESS COMPUTATION COMPLETED ===");
+
+
 //RENDER
 function render(world) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -264,7 +304,7 @@ function render(world) {
   const t = world.time.toFixed(3);
   const x = p.pos.x.toFixed(3);
   const y = p.pos.y.toFixed(3);
-  const vMag = p.vel.lengthSq().toFixed(3);
+  const vMag = p.vel.length().toFixed(3);
   const ke = world.kineticEnergy().toFixed(3);
   const pe = world.potentialEnergy().toFixed(3);
   const eTotal = world.totalEnergy().toFixed(3);
@@ -287,6 +327,24 @@ function render(world) {
   ctx.fillStyle = "#000000";
   ctx.fillText("E_TOTAL  : " + eTotal + " J", 20, lineY);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //ACCUMULATOR LOOP
