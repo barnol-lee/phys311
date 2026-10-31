@@ -130,7 +130,7 @@ class Gravity {
 
 //CAMERA
 class Camera {
-  constructor(canvas, scale = 50, originX = 0, originY = 0) {
+  constructor(canvas, scale = 100, originX = 0, originY = 0) {
     this.canvas = canvas;
     this.scale = scale;  
     this.originX = originX;
@@ -152,7 +152,7 @@ class Camera {
 const canvas = document.getElementById("sim");
 const ctx = canvas.getContext("2d");
 const metricsEl = document.getElementById("metrics");
-const camera = new Camera(canvas, 50, -3, -3);
+const camera = new Camera(canvas, 18, -3, -3);
 
 /* //PART A, 2
 CAMERA TEST
@@ -224,10 +224,10 @@ const projectile = world.add(new Body({
 
 //RENDER
 function render(world) {
-  //ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   
   const groundLeft = camera.toScreen(new Vec2(-10, 0));
-  const groundRight = camera.toScreen(new Vec2(50, 0));
+  const groundRight = camera.toScreen(new Vec2(100, 0));
   ctx.beginPath();
   ctx.moveTo(groundLeft.x, groundLeft.y);
   ctx.lineTo(groundRight.x, groundRight.y);
@@ -236,23 +236,18 @@ function render(world) {
   ctx.stroke();
 
   for (const b of world.bodies) {
-    
-    if (b.trail.length > 1) {
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = b.color;
+    for (let i = 0; i < b.trail.length; i += 6) { 
+      const oldPos = camera.toScreen(b.trail[i]);
+      const oldRadius = b.radius * camera.scale;
+
+      const snapshotAgeAlpha = 0.05 + (i / b.trail.length) * 0.30;
+
+      ctx.beginPath();
+      ctx.arc(oldPos.x, oldPos.y, oldRadius, 0, Math.PI * 2);
       
-      for (let i = 1; i < b.trail.length; i++) {
-        const p1 = camera.toScreen(b.trail[i - 1]);
-        const p2 = camera.toScreen(b.trail[i]);
-        const alpha = i / b.trail.length; 
-        
-        ctx.beginPath();
-        ctx.moveTo(p1.x, p1.y);
-        ctx.lineTo(p2.x, p2.y);
-        ctx.globalAlpha = alpha;
-        ctx.stroke();
-      }
-      ctx.globalAlpha = 1.0; 
+      ctx.fillStyle = "rgba(255, 130, 0, " + snapshotAgeAlpha + ")";
+      ctx.fill();
+      ctx.closePath();
     }
 
     const screenPos = camera.toScreen(b.pos);
@@ -264,7 +259,13 @@ function render(world) {
     ctx.fill();
     ctx.closePath();
   }
+
+  if (metricsEl) {
+    metricsEl.innerText = 
+      "Time: " + world.time.toFixed(2) + "s | Total Energy: " + world.totalEnergy().toFixed(2) + " J";
+  }
 }
+
 
 //ACCUMULATOR LOOP
 const DT = 1 / 120;        
@@ -282,7 +283,21 @@ function loop(timestamp) {
   accumulator += frameTime;
 
   while (accumulator >= DT) {
-    world.step(DT);        
+    if (!projectile.hasLanded) {
+      world.step(DT);        
+      
+      projectile.trail.push(projectile.pos.clone());
+      if (projectile.trail.length > 200) {
+        projectile.trail.shift();
+      }
+
+      if (projectile.pos.y <= 0 && projectile.vel.y < 0) {
+        projectile.pos.y = 0;
+        projectile.vel.set(0, 0);
+        projectile.hasLanded = true; 
+      }
+    }
+    
     accumulator -= DT;
   }
 
@@ -290,3 +305,4 @@ function loop(timestamp) {
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
+
