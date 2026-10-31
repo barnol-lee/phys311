@@ -260,10 +260,32 @@ function render(world) {
     ctx.closePath();
   }
 
-  if (metricsEl) {
-    metricsEl.innerText = 
-      "Time: " + world.time.toFixed(2) + "s | Total Energy: " + world.totalEnergy().toFixed(2) + " J";
-  }
+  const p = projectile;
+  const t = world.time.toFixed(3);
+  const x = p.pos.x.toFixed(3);
+  const y = p.pos.y.toFixed(3);
+  const vMag = p.vel.lengthSq().toFixed(3);
+  const ke = world.kineticEnergy().toFixed(3);
+  const pe = world.potentialEnergy().toFixed(3);
+  const eTotal = world.totalEnergy().toFixed(3);
+
+  ctx.font = "bold 14px monospace";
+  ctx.fillStyle = "#000000";
+  ctx.textAlign = "left";
+
+  let lineY = 30;
+  const lineHeight = 22;
+
+  ctx.fillText("TIME     : " + t + " s", 20, lineY); lineY += lineHeight;
+  ctx.fillText("POS X    : " + x + " m", 20, lineY); lineY += lineHeight;
+  ctx.fillText("POS Y    : " + y + " m", 20, lineY); lineY += lineHeight;
+  ctx.fillText("|V|      : " + vMag + " m/s", 20, lineY); lineY += lineHeight;
+  ctx.fillStyle = "#000000";
+  ctx.fillText("KE       : " + ke + " J", 20, lineY); lineY += lineHeight;
+  ctx.fillStyle = "#000000";
+  ctx.fillText("PE       : " + pe + " J", 20, lineY); lineY += lineHeight;
+  ctx.fillStyle = "#000000";
+  ctx.fillText("E_TOTAL  : " + eTotal + " J", 20, lineY);
 }
 
 
