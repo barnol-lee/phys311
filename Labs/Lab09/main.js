@@ -10,8 +10,25 @@ import { Renderer } from './render/renderer.js';
 
 const canvas = document.getElementById("sim");
 const ctx = canvas.getContext("2d");
+const camera = new Camera(canvas, 20, 0, 0);
+const render = new Renderer(canvas, camera);
 
+const world = new World(bounds={xMin: 0, yMin: 0, xMax: 10, yMax: 10})
 
+const b0 = world.add(new Body({
+    pos: new Vec2(1,1),
+    vel: new Vec2(1,0.5)
+}));
+const b1 = world.add(new Body({
+    pos: new Vec2(9,9),
+    vel: new Vec2(-1,-0.5),
+    color: "#2e27e8fb"
+}));
+const b2 = world.add(new Body({
+    pos: new Vec2(5,5),
+    isStatic: true,
+    color:"#000000"
+}));
 
 
 
