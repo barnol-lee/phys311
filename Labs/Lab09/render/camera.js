@@ -1,4 +1,4 @@
-import { Vec2 } from "./engine/vec2";
+import { Vec2 } from "./engine/vec2.js";
 
 class Camera {
   constructor(canvas, scale = 100, originX = 0, originY = 0) {

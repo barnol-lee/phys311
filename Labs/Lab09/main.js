@@ -1,7 +1,7 @@
 import { Vec2 } from './engine/vec2.js';
 import { Body } from './engine/body.js';
 import { World } from './engine/world.js';
-import { EulerCromer, VelocityVerlet } from './engine/integrators';
+import { EulerCromer, VelocityVerlet } from './engine/integrators.js';
 import { Gravity, NewtonGravity, Drag } from './engine/forces.js';
 import { resolvePair, gridPairs } from './engine/collisions.js';
 import { Camera } from './render/camera.js';
