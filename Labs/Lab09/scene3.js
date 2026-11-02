@@ -53,7 +53,7 @@ for (let i = 0; i <= 10; i++) {
 }
 
 //Accumulator
-const DT = 1 / 120;       
+const DT = world.dt;       
 const MAX_FRAME = 0.25;   
 
 const E0 = world.totalEnergy();
