@@ -1,6 +1,6 @@
 import { Vec2 } from './engine/vec2.js';
 
-class Camera {
+export class Camera {
   constructor(canvas, scale = 100, originX = 0, originY = 0) {
     this.canvas = canvas;
     this.scale = scale;  
@@ -19,4 +19,4 @@ class Camera {
       (this.canvas.height - py) / this.scale + this.originY
     );
   }
-} export{ Camera }
+}

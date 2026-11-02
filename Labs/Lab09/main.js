@@ -3,7 +3,7 @@ import { Body } from './engine/body.js';
 import { World } from './engine/world.js';
 import { EulerCromer, VelocityVerlet } from './engine/integrators.js';
 import { Gravity, NewtonGravity, Drag } from './engine/forces.js';
-import { resolvePair, gridPairs } from './engine/collisions.js';
+import { resolvePair, gridPairs, resolveBoundary, resolveCollisions } from './engine/collisions.js';
 import { Camera } from './render/camera.js';
 import { drawHUD } from './render/hud.js';
 import { Renderer } from './render/renderer.js';

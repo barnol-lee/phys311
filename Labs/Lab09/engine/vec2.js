@@ -1,4 +1,4 @@
-class Vec2 {
+export class Vec2 {
   constructor(x = 0, y = 0) { this.x = x; this.y = y; }
 
   set(x, y)      { this.x = x; this.y = y; return this; }
@@ -20,4 +20,3 @@ class Vec2 {
     return L === 0 ? new Vec2() : this.mul(1 / L);
   }
 }
-export { Vec2 };

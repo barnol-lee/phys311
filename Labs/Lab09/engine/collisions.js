@@ -26,7 +26,7 @@ export function resolvePair(a, b, e = 0.9) {
   return true;
 }
 
-function resolveBoundary(world) {
+export function resolveBoundary(world) {
   if (!world.bounds) return;
 
   const xMin = world.bounds.xMin ?? 0;
@@ -56,7 +56,7 @@ function resolveBoundary(world) {
       b.vel.y = -b.vel.y * res;
     }
   }
-} export { resolveBoundary }
+}
 
 export function gridPairs(bodies, cellSize) {
   const cells = new Map();
@@ -83,7 +83,7 @@ export function gridPairs(bodies, cellSize) {
   return pairs;
 }
 
-function resolveCollisions(world) {
+export function resolveCollisions(world) {
   const cellSize = 50; 
   const pairs = gridPairs(world.bodies, cellSize);
   
@@ -92,4 +92,4 @@ function resolveCollisions(world) {
   }
 
   resolveBoundary(world);
-} export { resolveCollisions }
+}
