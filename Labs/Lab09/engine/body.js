@@ -26,4 +26,8 @@ export class Body {
     this.force.addTo(force);
     return this;
     };
+
+    kineticEnergy() {
+    return 0.5 * this.m * this.vel.lengthSq();
+    };
 }

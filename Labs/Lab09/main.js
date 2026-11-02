@@ -38,21 +38,12 @@ const b2 = world.add(new Body({
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 //Accumulator
 const DT = 1 / 120;       
 const MAX_FRAME = 0.25;   
+
+const E0 = world.totalEnergy();
+const p0 = world.totalMomentum();
 
 let lastTime = 0;
 let accumulator = 0;
@@ -75,6 +66,8 @@ function loop(timestamp) {
   const t1 = performance.now();
   render.draw(world);     
   const tRender = performance.now() - t1;
+
+  drawHUD(ctx, world, E0, p0);
 
   requestAnimationFrame(loop);
 }
