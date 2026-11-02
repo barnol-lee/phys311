@@ -10,26 +10,40 @@ import { Renderer } from './render/renderer.js';
 
 const canvas = document.getElementById("sim");
 const ctx = canvas.getContext("2d");
-const camera = new Camera(canvas, 20, 0, 0);
+const camera = new Camera(canvas, 60, 0, 0);
 const render = new Renderer(canvas, camera);
 
 const world = new World({
-    bounds: {xMin: 0, yMin: 0, xMax: 10, yMax: 10}
+    bounds: {xMin: 0, yMin: 0, xMax: 10, yMax: 10},
+    restitution: 1.0
 });
 
+world.addForce(new NewtonGravity())
+
 const b0 = world.add(new Body({
-    pos: new Vec2(1,1),
-    vel: new Vec2(1,0.5)
+    mass: 1000,
+    pos: new Vec2(0.5,1),
+    vel: new Vec2(10,0),
+    radius: 0.25
 }));
 const b1 = world.add(new Body({
-    pos: new Vec2(9,9),
-    vel: new Vec2(-1,-0.5),
-    color: "#2e27e8fb"
+    mass: 1,
+    pos: new Vec2(0.55,1),
+    vel: new Vec2(-10,0),
+    color: "#2e27e8fb",
+    radius: 0.25
 }));
 const b2 = world.add(new Body({
-    pos: new Vec2(5,5),
+    pos: new Vec2(9.5,1),
     isStatic: true,
     color:"#000000"
+}));
+const b3 = world.add(new Body({
+    pos: new Vec2(9.9,1),
+    vel: new Vec2(0,0),
+    mass: 1000,
+    color:"#5b0808",
+    radius:0.1
 }));
 
 
@@ -56,6 +70,8 @@ function loop(timestamp) {
   if (frameTime > MAX_FRAME) frameTime = MAX_FRAME; 
   accumulator += frameTime;
 
+  const fps = frameTime > 0 ? 1 / frameTime : 0;
+
   const t0 = performance.now();
   while (accumulator >= DT) {
     world.step(DT);        
@@ -67,7 +83,7 @@ function loop(timestamp) {
   render.draw(world);     
   const tRender = performance.now() - t1;
 
-  drawHUD(ctx, world, E0, p0);
+  drawHUD(ctx, world, E0, p0, fps, tPhysics, tRender);
 
   requestAnimationFrame(loop);
 }

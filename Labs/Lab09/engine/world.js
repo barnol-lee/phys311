@@ -1,5 +1,6 @@
-import { EulerCromer } from "./integrators.js";
-import { resolveCollisions } from "./collisions.js";
+import { EulerCromer } from './integrators.js';
+import { resolveCollisions } from './collisions.js';
+import { Vec2 } from './vec2.js';
 
 export class World {
   constructor({ integrator = new EulerCromer(), bounds = null } = {}) {
