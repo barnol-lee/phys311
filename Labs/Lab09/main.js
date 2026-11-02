@@ -16,36 +16,24 @@ const render = new Renderer(canvas, camera);
 const world = new World({
     bounds: {xMin: 0, yMin: 0, xMax: 10, yMax: 10},
     restitution: 1.0
-});
+})
 
-world.addForce(new NewtonGravity())
+for (let i = 0; i < 20; i++) {
+    world.add(new Body({
+        mass: 1,
+        pos: new Vec2(Math.random()*9,Math.random()*9),
+        vel: new Vec2(Math.random()*5,Math.random()*5),
+        radius: 0.25,
+        color: `hsl(${Math.random() * 360}, 85%, 55%)`
+}));
+}
 
-const b0 = world.add(new Body({
-    mass: 1000,
-    pos: new Vec2(0.5,1),
-    vel: new Vec2(10,0),
-    radius: 0.25
-}));
-const b1 = world.add(new Body({
-    mass: 1,
-    pos: new Vec2(0.55,1),
-    vel: new Vec2(-10,0),
-    color: "#2e27e8fb",
-    radius: 0.25
-}));
-const b2 = world.add(new Body({
-    pos: new Vec2(9.5,1),
-    isStatic: true,
-    color:"#000000"
-}));
-const b3 = world.add(new Body({
-    pos: new Vec2(9.9,1),
-    vel: new Vec2(0,0),
-    mass: 1000,
-    color:"#5b0808",
-    radius:0.1
-}));
-
+if (world.time==0) {
+    console.log("=== TIME MATCH: t = 0s ===");
+    console.log(`Total Energy:   ${world.totalEnergy().toFixed(4)} J`);
+    console.log(`Total Momentum: ${world.totalMomentum().length().toFixed(4)} kg·m/s`);
+}
+let A = false;
 
 
 
@@ -84,6 +72,13 @@ function loop(timestamp) {
   const tRender = performance.now() - t1;
 
   drawHUD(ctx, world, E0, p0, fps, tPhysics, tRender);
+
+  if (!A && world.time>=60) {
+    console.log("=== TIME MATCH: t = 60s ===");
+    console.log(`Total Energy:   ${world.totalEnergy().toFixed(4)} J`);
+    console.log(`Total Momentum: ${world.totalMomentum().length().toFixed(4)} kg·m/s`);
+    A=true;
+    }   
 
   requestAnimationFrame(loop);
 }

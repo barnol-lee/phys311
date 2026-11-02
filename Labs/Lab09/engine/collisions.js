@@ -1,28 +1,29 @@
-export function resolvePair(a, b, e = 0.9) {
+export function resolvePair(a, b, e = 1.0) {
   const d = b.pos.sub(a.pos);
   const distSq = d.lengthSq();
   const rSum = a.radius + b.radius;
   if (distSq >= rSum * rSum || distSq === 0) return false;   
 
   const dist = Math.sqrt(distSq);
-  const n = d.mul(1 / dist);            
+  const n = d.mul(1 / dist);        
+  
+  const relVel = b.vel.sub(a.vel);
+  const vn = relVel.dot(n);
+  if (vn > 0) return true;    
 
-  const overlap = rSum - dist;
   const invA = a.isStatic ? 0 : 1 / a.m;
   const invB = b.isStatic ? 0 : 1 / b.m;
   const invSum = invA + invB;
-  if (invSum === 0) return false;         
-  a.pos.addScaled(n, -overlap * (invA / invSum));
-  b.pos.addScaled(n,  overlap * (invB / invSum));
-
-
-  const relVel = b.vel.sub(a.vel);
-  const vn = relVel.dot(n);
-  if (vn > 0) return true;               
+  if (invSum === 0) return false;  
 
   const J = -(1 + e) * vn / invSum;      
   a.vel.addScaled(n, -J * invA);
   b.vel.addScaled(n,  J * invB);
+
+  const overlap = rSum - dist;
+  a.pos.addScaled(n, -overlap * (invA / invSum));
+  b.pos.addScaled(n,  overlap * (invB / invSum));
+  
   return true;
 }
 

@@ -3,13 +3,13 @@ import { resolveCollisions } from './collisions.js';
 import { Vec2 } from './vec2.js';
 
 export class World {
-  constructor({ integrator = new EulerCromer(), bounds = null } = {}) {
+  constructor({ integrator = new EulerCromer(), bounds = null, restitution } = {}) {
     this.bodies = [];
     this.forces = [];
     this.integrator = integrator;
     this.bounds = bounds;       
     this.time = 0;
-    this.restitution = 0.9;
+    this.restitution = restitution;
   }
 
   add(body)       { this.bodies.push(body); return body; }

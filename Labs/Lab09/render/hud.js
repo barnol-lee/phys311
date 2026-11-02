@@ -1,4 +1,4 @@
-export function drawHUD(ctx, world, E0, p0) {
+export function drawHUD(ctx, world, E0, p0, fps, tPhysics, tRender) {
   const E = world.totalEnergy();
   const p = world.totalMomentum();
   const dE = E0 === 0 ? 0 : (E - E0) / Math.abs(E0);
@@ -9,6 +9,9 @@ export function drawHUD(ctx, world, E0, p0) {
     `E        = ${E.toFixed(4)} J`,
     `dE/E0    = ${(dE * 100).toFixed(3)} %`,
     `|p|      = ${p.length().toFixed(4)}`,
+    `FPS      = ${Math.round(fps)}`,
+    `tPhysics = ${tPhysics.toFixed(3)} ms`,
+    `tRender = ${tRender.toFixed(3)} ms`
   ];
 
   ctx.font = "13px monospace";
