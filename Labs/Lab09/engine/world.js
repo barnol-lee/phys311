@@ -17,13 +17,14 @@ export class World {
   add(body)       { this.bodies.push(body); return body; }
   addForce(force) { this.forces.push(force); return force; }
 
-  step(dt) {
-    for (const b of this.bodies) b.clearForce();      
-    for (const f of this.forces) f.apply(this);      
-    this.integrator.step(this, dt);                   
-    resolveCollisions(this);                         
-    this.time += dt;                                  
-  }
+  step(dt) {                        
+  for (const b of this.bodies) b.clearForce();      
+  for (const f of this.forces) f.apply(this);      
+  this.integrator.step(this, dt);
+  resolveCollisions(this);  
+  this.time += dt;                                  
+}
+
 
   totalEnergy() {
     let E = 0;
