@@ -10,26 +10,26 @@ import { Renderer } from './render/renderer.js';
 
 const canvas = document.getElementById("sim");
 const ctx = canvas.getContext("2d");
-const camera = new Camera(canvas, 18, 0, 0);
+const camera = new Camera(canvas, 15, -45, -25);
 const render = new Renderer(canvas, camera);
 
 const world = new World({
-    bounds: {xMin: 0, yMin: 0, xMax: 30, yMax: 30},
+    bounds: {xMin: -40, yMin: -20, xMax: 40, yMax: 20},
     restitution: 1.0,
     integrator: new VelocityVerlet(),
 })
 
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 25; i++) {
     world.add(new Body({
-        m: Math.random()*10,
-        pos: new Vec2(Math.random()*25,Math.random()*25),
+        m: Math.random()*100,
+        pos: new Vec2((Math.random()*2-1)*25,(Math.random()*2-1)*25),
         vel: new Vec2((Math.random()*2-1)*10,(Math.random()*2-1)*10),
-        radius: 0.5,
+        radius: Math.random()+0.5,
         color: `hsl(${Math.random() * 360}, 85%, 55%)`
 }));
 }
 
-world.addForce(new NewtonGravity())
+world.addForce(new NewtonGravity({ G: 1, softening: 1.0}))
 
 //Accumulator
 const DT = world.dt;       

@@ -26,7 +26,11 @@ export class Drag {
 }
 
 export class NewtonGravity {
-  constructor(G = 1, softening = 0.01) { this.G = G; this.eps = softening; }
+  constructor({G = 1, softening = 0.01} = {}) { 
+    this.G = G; 
+    this.eps = softening; 
+  }
+
   apply(world) {
     const bs = world.bodies;
     for (let i = 0; i < bs.length; i++) {

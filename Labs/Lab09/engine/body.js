@@ -18,14 +18,14 @@ export class Body {
     };
 
     clearForce() {
-    this.force.zero(); 
-    return this;
-    };
-
+      this.force.zero(); 
+      return this;
+    }
+    
     apply(force) {
-    this.force.addTo(force);
-    return this;
-    };
+      this.force.addTo(force);
+      return this;
+    }
 
     kineticEnergy() {
     return 0.5 * this.m * this.vel.lengthSq();
