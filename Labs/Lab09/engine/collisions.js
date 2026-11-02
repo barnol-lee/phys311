@@ -40,22 +40,27 @@ export function resolveBoundary(world) {
   for (const b of world.bodies) {
     if (b.isStatic) continue; 
     const r = b.radius ?? 0;
+    const oldVel = b.vel.clone();
 
     if (b.pos.x - r < xMin) {
-      b.pos.x = xMin + r;          
+      b.pos.x = xMin + r;       
       b.vel.x = -b.vel.x * res;
     } else if (b.pos.x + r > xMax) {
-      b.pos.x = xMax - r;          
+      b.pos.x = xMax - r;
+      const oldVelX = b.vel.x
       b.vel.x = -b.vel.x * res; 
     }
-
     if (b.pos.y - r < yMin) {
-      b.pos.y = yMin + r;          
+      b.pos.y = yMin + r;        
       b.vel.y = -b.vel.y * res; 
     } else if (b.pos.y + r > yMax) {
-      b.pos.y = yMax - r;          
+      b.pos.y = yMax - r;   
+      const oldVelY = b.vel.y;        
       b.vel.y = -b.vel.y * res;
     }
+
+    const deltaVel = oldVel.sub(b.vel);
+    world.boundsMomentum.addScaled(deltaVel, b.m ?? 1);
   }
 }
 

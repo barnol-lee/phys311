@@ -10,6 +10,7 @@ export class World {
     this.bounds = bounds;       
     this.time = 0;
     this.restitution = restitution;
+    this.boundsMomentum = new Vec2(0,0);
   }
 
   add(body)       { this.bodies.push(body); return body; }
@@ -31,8 +32,10 @@ export class World {
   }
 
   totalMomentum() {
+    const ext = this.boundsMomentum.clone();
     const p = new Vec2();
     for (const b of this.bodies) p.addScaled(b.vel, b.m);
+    p.addTo(ext)
     return p;
   }
 }
