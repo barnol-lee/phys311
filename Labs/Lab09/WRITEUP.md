@@ -29,5 +29,12 @@ N=500: tPhysics=5.000ms, tRender=0.000ms, fps=165
 N=600: tPhysics=350.000ms, tRender=1.000ms, fps=5
 The physics compute time grew the fastest in line with prediction. The place to optimize here is collision resolution, as that is really where the computations start to explode in complexity. Although it seems like there's a lot of room to test N=500 to N=600, my simulation pretty much performs as bad at N=510 as it does at N=600. So, N=500 really is about the best I can get.
 
+7. Performance Benchmark Implementing The Grid On Scene 1:
+Since my simulation ran N=200 very well, I will just show a before and after picking up from N=500 and moving up with a cell size of 5. The entries are of the form (tPhysics, tRender, fps).
+N       Before:               After: 
+500     (5ms, 0ms, 165)       (1ms, 0ms, 165)
+600     (350ms, 1ms, 5)       (2ms, 0ms, 165)
+In each case, it is seen momentum is conserved perfectly.
+
 
 
