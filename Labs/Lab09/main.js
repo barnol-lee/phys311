@@ -13,32 +13,21 @@ const ctx = canvas.getContext("2d");
 const camera = new Camera(canvas, 60, 0, 0);
 const render = new Renderer(canvas, camera);
 
+//SCENE 1
 const world = new World({
     bounds: {xMin: 0, yMin: 0, xMax: 10, yMax: 10},
-    restitution: 1.0
+    restitution: 0.8
 })
 
 for (let i = 0; i < 20; i++) {
     world.add(new Body({
-        mass: 1,
+        mass: Math.random()*10,
         pos: new Vec2(Math.random()*9,Math.random()*9),
-        vel: new Vec2(Math.random()*5,Math.random()*5),
-        radius: 0.25,
+        vel: new Vec2(Math.random()*10,Math.random()*10),
+        radius: Math.random()*0.5,
         color: `hsl(${Math.random() * 360}, 85%, 55%)`
 }));
 }
-
-if (world.time==0) {
-    console.log("=== TIME MATCH: t = 0s ===");
-    console.log(`Total Energy:   ${world.totalEnergy().toFixed(4)} J`);
-    console.log(`Total Momentum: ${world.totalMomentum().length().toFixed(4)} kg·m/s`);
-}
-let A = false;
-
-
-
-
-
 
 //Accumulator
 const DT = 1 / 120;       
@@ -73,13 +62,8 @@ function loop(timestamp) {
 
   drawHUD(ctx, world, E0, p0, fps, tPhysics, tRender);
 
-  if (!A && world.time>=60) {
-    console.log("=== TIME MATCH: t = 60s ===");
-    console.log(`Total Energy:   ${world.totalEnergy().toFixed(4)} J`);
-    console.log(`Total Momentum: ${world.totalMomentum().length().toFixed(4)} kg·m/s`);
-    A=true;
-    }   
-
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
+
+
