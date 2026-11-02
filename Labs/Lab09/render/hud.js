@@ -15,11 +15,3 @@ export function drawHUD(ctx, world, E0, p0) {
   ctx.fillStyle = Math.abs(dE) > 0.01 ? "#dc3545" : "#2d3b45";
   lines.forEach((line, i) => ctx.fillText(line, 12, 20 + i * 17));
 }
-
-const t0 = performance.now();
-while (acc >= DT) { world.step(DT); acc -= DT; }
-const tPhysics = performance.now() - t0;
-
-const t1 = performance.now();
-renderer.draw(world);
-const tRender = performance.now() - t1;

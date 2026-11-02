@@ -63,12 +63,17 @@ function loop(timestamp) {
   if (frameTime > MAX_FRAME) frameTime = MAX_FRAME; 
   accumulator += frameTime;
 
+  const t0 = performance.now();
   while (accumulator >= DT) {
     world.step(DT);        
     accumulator -= DT;
   }
+  const tPhysics = performance.now() - t0;
 
-  render(world);           
+  const t1 = performance.now();
+  render(world);     
+  const tRender = performance.now() - t1;
+
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
