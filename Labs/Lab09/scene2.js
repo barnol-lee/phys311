@@ -19,7 +19,7 @@ const world = new World({
     integrator: new VelocityVerlet(),
 })
 
-for (let i = 0; i < 25; i++) {
+for (let i = 0; i < 5; i++) {
     world.add(new Body({
         m: Math.random()*100,
         pos: new Vec2((Math.random()*2-1)*25,(Math.random()*2-1)*25),
@@ -29,7 +29,7 @@ for (let i = 0; i < 25; i++) {
 }));
 }
 
-world.addForce(new NewtonGravity({ G: 1, softening: 1.5}))
+world.addForce(new NewtonGravity({ G: 1, softening: 1}))
 
 //Accumulator
 const DT = world.dt;       

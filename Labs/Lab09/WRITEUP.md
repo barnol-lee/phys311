@@ -13,6 +13,6 @@ As a note, for these two simulations, I randomized position and velocity, so tha
 ![alt text](<Screenshot 2026-11-01 234220.png>)
 
 4. Scene 2:
-![alt text](<Screenshot 2026-11-01 234058.png>)
+![alt text](<Screenshot 2026-11-02 062749.png>)
 
 5. Scene 3:
