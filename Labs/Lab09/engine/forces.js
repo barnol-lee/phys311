@@ -49,18 +49,26 @@ export class Spring {
     this.restLength = restLength;
   }
 
-  apply() {
+  apply(world) {
     if (!this.body || !this.anchor) return;
     const anchorPos = this.anchor.pos || this.anchor;
-    if (anchorPos.x === undefined) return;
+    //if (anchorPos.x === undefined) return;
     const d = this.body.pos.sub(anchorPos); 
     const L = d.length();
     if (L === 0) return;                           
     const stretch = L - this.restLength;
     const forceVec = d.mul(-this.k * stretch / L);
-    this.body.force.addTo(forceVec);
-    if (this.anchor.force) {
-      this.anchor.force.addTo(forceVec.mul(-1));
+
+    if (!this.body.isStatic && (this.anchor.isStatic || !this.anchor.force)) {
+        this.body.force.addTo(forceVec);
+    
+        if (world && world.boundsMomentum) {
+            world.boundsMomentum.addScaled(forceVec, -world.dt); 
+        }
+    }
+    else if (!this.body.isStatic && !this.anchor.isStatic) {
+        this.body.force.addTo(forceVec);
+        this.anchor.force.addTo(forceVec.mul(-1));
     }
   }
 

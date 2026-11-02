@@ -15,7 +15,7 @@ const render = new Renderer(canvas, camera);
 
 const world = new World({
     bounds: {xMin: 0, yMin: 0, xMax: 30, yMax: 30},
-    restitution: 0.99
+    restitution: 1.0
 })
 
 world.add(new Body({
@@ -35,6 +35,7 @@ for (let i = 0; i < 10; i++) {
         
 }))
 }
+
 world.add(new Body({
     isStatic: true,
     pos: new Vec2(30,30),

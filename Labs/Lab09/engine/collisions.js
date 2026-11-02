@@ -1,4 +1,4 @@
-export function resolvePair(a, b, e = 1.0) {
+export function resolvePair(a, b, e = world.restitution, world) {
   const d = b.pos.sub(a.pos);
   const distSq = d.lengthSq();
   const rSum = a.radius + b.radius;
@@ -19,6 +19,15 @@ export function resolvePair(a, b, e = 1.0) {
   const J = -(1 + e) * vn / invSum;      
   a.vel.addScaled(n, -J * invA);
   b.vel.addScaled(n,  J * invB);
+
+  if (world && world.boundsMomentum) {
+    const impulseVec = n.mul(J);
+    if (a.isStatic) {
+      world.boundsMomentum.addTo(impulseVec);
+    } else if (b.isStatic) {
+      world.boundsMomentum.addScaled(impulseVec, -1);
+    }
+  }
 
   const overlap = rSum - dist;
   a.pos.addScaled(n, -overlap * (invA / invSum));
@@ -47,15 +56,13 @@ export function resolveBoundary(world) {
       b.vel.x = -b.vel.x * res;
     } else if (b.pos.x + r > xMax) {
       b.pos.x = xMax - r;
-      const oldVelX = b.vel.x
       b.vel.x = -b.vel.x * res; 
     }
     if (b.pos.y - r < yMin) {
       b.pos.y = yMin + r;        
       b.vel.y = -b.vel.y * res; 
     } else if (b.pos.y + r > yMax) {
-      b.pos.y = yMax - r;   
-      const oldVelY = b.vel.y;        
+      b.pos.y = yMax - r;           
       b.vel.y = -b.vel.y * res;
     }
 
@@ -94,7 +101,7 @@ export function resolveCollisions(world) {
   const pairs = gridPairs(world.bodies, cellSize);
   
   for (const [a, b] of pairs) {
-    resolvePair(a, b, world.restitution);
+    resolvePair(a, b, world.restitution, world);
   }
 
   resolveBoundary(world);
