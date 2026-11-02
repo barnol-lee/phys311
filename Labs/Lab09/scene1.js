@@ -16,7 +16,8 @@ const render = new Renderer(canvas, camera);
 //SCENE 1
 const world = new World({
     bounds: {xMin: -40, yMin: -20, xMax: 40, yMax: 20},
-    restitution: 0.8
+    restitution: 0.8,
+    cellSize: 10
 })
 
 for (let i = 0; i < 510; i++) {

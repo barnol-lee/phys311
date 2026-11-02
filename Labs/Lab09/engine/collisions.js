@@ -97,8 +97,7 @@ export function gridPairs(bodies, cellSize) {
 }
 
 export function resolveCollisions(world) {
-  const cellSize = 50; 
-  const pairs = gridPairs(world.bodies, cellSize);
+  const pairs = gridPairs(world.bodies, world.cellSize);
   
   for (const [a, b] of pairs) {
     resolvePair(a, b, world.restitution, world);
