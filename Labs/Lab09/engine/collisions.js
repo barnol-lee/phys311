@@ -23,9 +23,9 @@ export function resolvePair(a, b, e = world.restitution, world) {
   if (world && world.boundsMomentum) {
     const impulseVec = n.mul(J);
     if (a.isStatic) {
-      world.boundsMomentum.addTo(impulseVec);
-    } else if (b.isStatic) {
       world.boundsMomentum.addScaled(impulseVec, -1);
+    } else if (b.isStatic) {
+      world.boundsMomentum.addScaled(impulseVec,1);
     }
   }
 

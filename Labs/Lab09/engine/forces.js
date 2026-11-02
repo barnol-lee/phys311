@@ -51,24 +51,42 @@ export class Spring {
 
   apply(world) {
     if (!this.body || !this.anchor) return;
+
     const anchorPos = this.anchor.pos || this.anchor;
-    //if (anchorPos.x === undefined) return;
+    if (anchorPos.x === undefined) return;
     const d = this.body.pos.sub(anchorPos); 
+
     const L = d.length();
-    if (L === 0) return;                           
+    if (L === 0) return;   
+
     const stretch = L - this.restLength;
     const forceVec = d.mul(-this.k * stretch / L);
 
-    if (!this.body.isStatic && (this.anchor.isStatic || !this.anchor.force)) {
+    const bodyIsStatic = this.body.isStatic;
+    const anchorIsStatic = this.anchor.isStatic || (this.anchor.x !== undefined && this.anchor.y !== undefined);
+
+    if (bodyIsStatic && anchorIsStatic) {
+        return;
+    }
+    if (!bodyIsStatic && anchorIsStatic) {
         this.body.force.addTo(forceVec);
-    
         if (world && world.boundsMomentum) {
             world.boundsMomentum.addScaled(forceVec, -world.dt); 
         }
+    } 
+    else if (bodyIsStatic && !anchorIsStatic) {
+        if (this.anchor.force) {
+            this.anchor.force.addScaled(forceVec, -1);
+            if (world && world.boundsMomentum) {
+                world.boundsMomentum.addScaled(forceVec, world.dt);
+            }
+        }
     }
-    else if (!this.body.isStatic && !this.anchor.isStatic) {
+    else {
         this.body.force.addTo(forceVec);
-        this.anchor.force.addTo(forceVec.mul(-1));
+        if (this.anchor.force) {
+            this.anchor.force.addScaled(forceVec, -1);
+        }
     }
   }
 

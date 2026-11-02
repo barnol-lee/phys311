@@ -20,8 +20,8 @@ const world = new World({
 
 world.add(new Body({
     isStatic: true,
-    pos: new Vec2(0,0),
-    radius: 1,
+    pos: new Vec2(1,1),
+    radius: 0.75,
     color: "#000000"
 }))
 
@@ -38,8 +38,8 @@ for (let i = 0; i < 10; i++) {
 
 world.add(new Body({
     isStatic: true,
-    pos: new Vec2(30,30),
-    radius: 1,
+    pos: new Vec2(29,29),
+    radius: 0.75,
     color: "#000000"
 }))
 
