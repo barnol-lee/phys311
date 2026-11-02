@@ -17,3 +17,17 @@ As a note, for these two simulations, I randomized position and velocity, so tha
 
 5. Scene 3:
 ![alt text](<Screenshot 2026-11-02 063514.png>)
+For my scene I chose a large number of balls connected by springs in a series, where the first and final balls (which are the black ones in the image) are static. The balls are also stuck in a box. The easier diagnostic here was momentum conservation, as it conserved regardless of what you choose for your restitution. The work is mostly just about keeping track of the momentum fed into the static objects in your environment and properly feeding that back into the total momentum property in World. Though, keeping it truly stable over time was quite a hassle of debugging. Although I tried and tried to get energy conserved when e=1, I could not get it to work. The best I could manage was a drift of about 0.05%/sec. 
+
+6. Performance Benchmark On Scene 1:
+N=20: tPhysics=0.000ms, tRender=0.000ms, fps=165
+N=50: tPhysics=0.000ms, tRender=0.000ms, fps=165
+N=100: tPhysics=0.000ms, tRender=0.000ms, fps=165
+N=200: tPhysics=1.000ms, tRender=0.000ms, fps=165
+N=400: tPhysics=3.000ms, tRender=0.000ms, fps=165
+N=500: tPhysics=5.000ms, tRender=0.000ms, fps=165
+N=600: tPhysics=350.000ms, tRender=1.000ms, fps=5
+The physics compute time grew the fastest in line with prediction. The place to optimize here is collision resolution, as that is really where the computations start to explode in complexity. Although it seems like there's a lot of room to test N=500 to N=600, my simulation pretty much performs as bad at N=510 as it does at N=600. So, N=500 really is about the best I can get.
+
+
+

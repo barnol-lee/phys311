@@ -15,7 +15,7 @@ const render = new Renderer(canvas, camera);
 
 const world = new World({
     bounds: {xMin: -40, yMin: -20, xMax: 40, yMax: 20},
-    restitution: 0.99
+    restitution: 1.0
     //integrator: new VelocityVerlet()
 })
 
@@ -29,7 +29,7 @@ world.add(new Body({
 for (let i = 0; i < 100; i++) {
     world.add(new Body({
         m: Math.random()*50,
-        pos: new Vec2(Math.random()*25,Math.random()*25),
+        pos: new Vec2(Math.random()*40,Math.random()*20),
         vel: new Vec2((Math.random()*2-1)*100,(Math.random()*2-1)*100),
         radius: 0.5,
         color: `hsl(${Math.random() * 360}, 85%, 55%)`

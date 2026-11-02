@@ -19,10 +19,10 @@ const world = new World({
     restitution: 0.8
 })
 
-for (let i = 0; i < 20; i++) {
+for (let i = 0; i < 510; i++) {
     world.add(new Body({
         m: 1,
-        pos: new Vec2((Math.random()*2-1)*20,(Math.random()*2-1)*20),
+        pos: new Vec2((Math.random()*2-1)*40,(Math.random()*2-1)*20),
         vel: new Vec2((Math.random()*2-1)*10,(Math.random()*2-1)*10),
         radius: 0.5,
         color: `hsl(${Math.random() * 360}, 85%, 55%)`
