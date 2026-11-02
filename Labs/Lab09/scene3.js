@@ -10,27 +10,27 @@ import { Renderer } from './render/renderer.js';
 
 const canvas = document.getElementById("sim");
 const ctx = canvas.getContext("2d");
-const camera = new Camera(canvas, 15, -25, -5);
+const camera = new Camera(canvas, 15, -45, -25);
 const render = new Renderer(canvas, camera);
 
 const world = new World({
-    //bounds: {xMin: 0, yMin: 0, xMax: 30, yMax: 30},
+    bounds: {xMin: -40, yMin: -20, xMax: 40, yMax: 20},
     restitution: 0.99
     //integrator: new VelocityVerlet()
 })
 
 world.add(new Body({
     isStatic: true,
-    pos: new Vec2(1,1),
+    pos: new Vec2(-30,0),
     radius: 0.75,
     color: "#000000"
 }))
 
-for (let i = 0; i < 20; i++) {
+for (let i = 0; i < 100; i++) {
     world.add(new Body({
-        m: Math.random()*10,
+        m: Math.random()*50,
         pos: new Vec2(Math.random()*25,Math.random()*25),
-        vel: new Vec2((Math.random()*2-1)*10,(Math.random()*2-1)*10),
+        vel: new Vec2((Math.random()*2-1)*100,(Math.random()*2-1)*100),
         radius: 0.5,
         color: `hsl(${Math.random() * 360}, 85%, 55%)`
         
@@ -39,12 +39,12 @@ for (let i = 0; i < 20; i++) {
 
 world.add(new Body({
     isStatic: true,
-    pos: new Vec2(29,29),
+    pos: new Vec2(30,0),
     radius: 0.75,
     color: "#000000"
 }))
 
-for (let i = 0; i <= 20; i++) {
+for (let i = 0; i <= 100; i++) {
     const currentBody = world.bodies[i];
     const nextBody = world.bodies[i + 1];
     const springK = 1.0; 
