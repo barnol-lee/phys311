@@ -3,7 +3,14 @@ export class Renderer {
     this.ctx = canvas.getContext("2d");
     this.canvas = canvas;
     this.camera = camera;
+
+    this.resizeCanvas();
+    window.addEventListener('resize', this.resizeCanvas.bind(this));
   }
+   resizeCanvas() {
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+    }
 
   draw(world) {
     const { ctx, canvas, camera } = this;
@@ -32,6 +39,7 @@ export class Renderer {
       ctx.beginPath();
       ctx.arc(p.x, p.y, b.radius * camera.scale, 0, 2 * Math.PI);
       ctx.fill();
+        }
     }
   }
-}}
+}

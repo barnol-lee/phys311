@@ -10,13 +10,13 @@ import { Renderer } from './render/renderer.js';
 
 const canvas = document.getElementById("sim");
 const ctx = canvas.getContext("2d");
-const camera = new Camera(canvas, 20, -10, 0);
+const camera = new Camera(canvas, 15, -25, 0);
 const render = new Renderer(canvas, camera);
 
 const world = new World({
-    bounds: {xMin: 0, yMin: 0, xMax: 30, yMax: 30},
-    restitution: 1.0,
-    integrator: new VelocityVerlet()
+    //bounds: {xMin: 0, yMin: 0, xMax: 30, yMax: 30},
+    restitution: 0.99
+    //integrator: new VelocityVerlet()
 })
 
 world.add(new Body({
@@ -26,7 +26,7 @@ world.add(new Body({
     color: "#000000"
 }))
 
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 20; i++) {
     world.add(new Body({
         m: Math.random()*10,
         pos: new Vec2(Math.random()*25,Math.random()*25),
@@ -44,7 +44,7 @@ world.add(new Body({
     color: "#000000"
 }))
 
-for (let i = 0; i <= 10; i++) {
+for (let i = 0; i <= 20; i++) {
     const currentBody = world.bodies[i];
     const nextBody = world.bodies[i + 1];
     const springK = 1.0; 
