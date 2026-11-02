@@ -39,7 +39,25 @@ export class Renderer {
       ctx.beginPath();
       ctx.arc(p.x, p.y, b.radius * camera.scale, 0, 2 * Math.PI);
       ctx.fill();
+      }
+    
+     for (const b of world.bodies) {
+      if (b.trail && b.trail.length > 1) {
+        ctx.strokeStyle = b.color ?? "rgba(255,130,0,0.45)"; 
+        ctx.lineWidth = 2;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        
+        ctx.beginPath();
+        const firstScreen = camera.toScreen(b.trail[0]);
+        ctx.moveTo(firstScreen.x, firstScreen.y);
+        
+        for (let i = 1; i < b.trail.length; i++) {
+          const pointScreen = camera.toScreen(b.trail[i]);
+          ctx.lineTo(pointScreen.x, pointScreen.y);
         }
+        ctx.stroke();
+      }
     }
   }
-}
+}}

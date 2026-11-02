@@ -14,6 +14,7 @@ export class Body {
     this.color = color;
     this.isStatic = isStatic;
     this.trail = [];
+    this.maxTrailLength=100;
     this.id = ++nextId;
     };
 
@@ -30,4 +31,12 @@ export class Body {
     kineticEnergy() {
     return 0.5 * this.m * this.vel.lengthSq();
     };
+
+    updateTrail() {
+    this.trail.push(this.pos.clone());
+
+    if (this.trail.length > this.maxTrailLength) {
+      this.trail.shift(); 
+      }
+    }
 }

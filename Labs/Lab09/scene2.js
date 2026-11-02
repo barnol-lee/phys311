@@ -29,7 +29,7 @@ for (let i = 0; i < 25; i++) {
 }));
 }
 
-world.addForce(new NewtonGravity({ G: 1, softening: 1.0}))
+world.addForce(new NewtonGravity({ G: 1, softening: 1.5}))
 
 //Accumulator
 const DT = world.dt;       
@@ -55,6 +55,10 @@ function loop(timestamp) {
   while (accumulator >= DT) {
     world.step(DT);        
     accumulator -= DT;
+
+    for (const b of world.bodies) {
+    b.updateTrail(); 
+    }
   }
   const tPhysics = performance.now() - t0;
 

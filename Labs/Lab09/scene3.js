@@ -76,9 +76,8 @@ function loop(timestamp) {
   while (accumulator >= DT) {
     world.step(DT);        
     accumulator -= DT;
-  }
+    }
   const tPhysics = performance.now() - t0;
-
   const t1 = performance.now();
   render.draw(world);     
   const tRender = performance.now() - t1;
