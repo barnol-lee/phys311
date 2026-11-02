@@ -23,7 +23,7 @@ for (let i = 0; i < 10; i++) {
     world.add(new Body({
         m: Math.random()*10,
         pos: new Vec2(Math.random()*25,Math.random()*25),
-        vel: new Vec2(Math.random()*10,Math.random()*10),
+        vel: new Vec2((Math.random()*2-1)*10,(Math.random()*2-1)*10),
         radius: 0.5,
         color: `hsl(${Math.random() * 360}, 85%, 55%)`
 }));

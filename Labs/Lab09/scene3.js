@@ -10,7 +10,7 @@ import { Renderer } from './render/renderer.js';
 
 const canvas = document.getElementById("sim");
 const ctx = canvas.getContext("2d");
-const camera = new Camera(canvas, 15, -25, 0);
+const camera = new Camera(canvas, 15, -25, -5);
 const render = new Renderer(canvas, camera);
 
 const world = new World({
@@ -30,7 +30,7 @@ for (let i = 0; i < 20; i++) {
     world.add(new Body({
         m: Math.random()*10,
         pos: new Vec2(Math.random()*25,Math.random()*25),
-        vel: new Vec2(Math.random()*10,Math.random()*10),
+        vel: new Vec2((Math.random()*2-1)*10,(Math.random()*2-1)*10),
         radius: 0.5,
         color: `hsl(${Math.random() * 360}, 85%, 55%)`
         
