@@ -9,6 +9,23 @@ export class Renderer {
     const { ctx, canvas, camera } = this;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    if (world.forces) {
+      for (const f of world.forces) {
+        if (!f.body || !f.anchor) continue;
+
+        const startWorld = f.body.pos;
+        const endWorld = f.anchor.pos || f.anchor;
+        const startScreen = camera.toScreen(startWorld);
+        const endScreen = camera.toScreen(endWorld);
+
+        ctx.beginPath();
+        ctx.moveTo(startScreen.x, startScreen.y);
+        ctx.lineTo(endScreen.x, endScreen.y);
+        ctx.strokeStyle = "#000000";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
     for (const b of world.bodies) {
       const p = camera.toScreen(b.pos);
       ctx.fillStyle = b.color ?? "#ff8200";
@@ -17,4 +34,4 @@ export class Renderer {
       ctx.fill();
     }
   }
-}
+}}

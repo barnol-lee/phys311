@@ -50,17 +50,26 @@ export class Spring {
   }
 
   apply() {
-    const d = this.body.pos.sub(this.anchor.pos); 
+    if (!this.body || !this.anchor) return;
+    const anchorPos = this.anchor.pos || this.anchor;
+    if (anchorPos.x === undefined) return;
+    const d = this.body.pos.sub(anchorPos); 
     const L = d.length();
     if (L === 0) return;                           
     const stretch = L - this.restLength;
     const forceVec = d.mul(-this.k * stretch / L);
     this.body.force.addTo(forceVec);
-    this.anchor.force.addTo(forceVec.mul(-1));
+    if (this.anchor.force) {
+      this.anchor.force.addTo(forceVec.mul(-1));
+    }
   }
 
   potentialEnergy() {
-    const s = this.body.pos.sub(this.anchor.pos).length() - this.restLength;
+    if (!this.body || !this.anchor) return 0;
+    const anchorPos = this.anchor.pos || this.anchor;
+    if (anchorPos.x === undefined) return 0;
+    const s = this.body.pos.sub(anchorPos).length() - this.restLength;
     return 0.5 * this.k * s * s;
   }
 }
+

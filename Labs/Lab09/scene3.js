@@ -18,7 +18,7 @@ const world = new World({
     restitution: 1.0
 })
 
-for (let i = 0; i < 9; i++) {
+for (let i = 0; i < 10; i++) {
     world.add(new Body({
         mass: Math.random()*10,
         pos: new Vec2(Math.random()*2,Math.random()*2),
@@ -29,7 +29,7 @@ for (let i = 0; i < 9; i++) {
 }));
 }
 
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i <= 10; i++) {
     const currentBody = world.bodies[i];
     const nextBody = world.bodies[i + 1];
     const springK = 0.5; 
