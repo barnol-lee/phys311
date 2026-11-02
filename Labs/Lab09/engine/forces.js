@@ -1,3 +1,5 @@
+import { Vec2 } from './vec2.js';
+
 export class Gravity {
   constructor(g = 9.81) { this.g = g; }
   apply(world) {
@@ -36,5 +38,29 @@ export class NewtonGravity {
         bs[j].force.addScaled(d, -F);   
       }
     }
+  }
+}
+
+export class Spring {
+  constructor(body, anchor, k, restLength = 0) {
+    this.body = body; 
+    this.anchor = anchor;
+    this.k = k; 
+    this.restLength = restLength;
+  }
+
+  apply() {
+    const d = this.body.pos.sub(this.anchor.pos); 
+    const L = d.length();
+    if (L === 0) return;                           
+    const stretch = L - this.restLength;
+    const forceVec = d.mul(-this.k * stretch / L);
+    this.body.force.addTo(forceVec);
+    this.anchor.force.addTo(forceVec.mul(-1));
+  }
+
+  potentialEnergy() {
+    const s = this.body.pos.sub(this.anchor.pos).length() - this.restLength;
+    return 0.5 * this.k * s * s;
   }
 }
