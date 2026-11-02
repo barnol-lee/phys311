@@ -13,7 +13,9 @@ const ctx = canvas.getContext("2d");
 const camera = new Camera(canvas, 20, 0, 0);
 const render = new Renderer(canvas, camera);
 
-const world = new World(bounds={xMin: 0, yMin: 0, xMax: 10, yMax: 10})
+const world = new World({
+    bounds: {xMin: 0, yMin: 0, xMax: 10, yMax: 10}
+});
 
 const b0 = world.add(new Body({
     pos: new Vec2(1,1),
@@ -71,7 +73,7 @@ function loop(timestamp) {
   const tPhysics = performance.now() - t0;
 
   const t1 = performance.now();
-  render(world);     
+  render.draw(world);     
   const tRender = performance.now() - t1;
 
   requestAnimationFrame(loop);

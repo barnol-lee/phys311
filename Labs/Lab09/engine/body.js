@@ -15,5 +15,15 @@ export class Body {
     this.isStatic = isStatic;
     this.trail = [];
     this.id = ++nextId;
-  }
+    };
+
+    clearForce() {
+    this.force.zero(); 
+    return this;
+    };
+
+    apply(force) {
+    this.force.addTo(force);
+    return this;
+    };
 }
