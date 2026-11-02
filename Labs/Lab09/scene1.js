@@ -10,21 +10,21 @@ import { Renderer } from './render/renderer.js';
 
 const canvas = document.getElementById("sim");
 const ctx = canvas.getContext("2d");
-const camera = new Camera(canvas, 60, 0, 0);
+const camera = new Camera(canvas, 15, -45, -25);
 const render = new Renderer(canvas, camera);
 
 //SCENE 1
 const world = new World({
-    bounds: {xMin: 0, yMin: 0, xMax: 10, yMax: 10},
+    bounds: {xMin: -40, yMin: -20, xMax: 40, yMax: 20},
     restitution: 0.8
 })
 
 for (let i = 0; i < 20; i++) {
     world.add(new Body({
-        m: Math.random()*10,
-        pos: new Vec2(Math.random()*9,Math.random()*9),
+        m: 1,
+        pos: new Vec2((Math.random()*2-1)*20,(Math.random()*2-1)*20),
         vel: new Vec2((Math.random()*2-1)*10,(Math.random()*2-1)*10),
-        radius: Math.random()*0.5,
+        radius: 0.5,
         color: `hsl(${Math.random() * 360}, 85%, 55%)`
 }));
 }
