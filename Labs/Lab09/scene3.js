@@ -15,7 +15,8 @@ const render = new Renderer(canvas, camera);
 
 const world = new World({
     bounds: {xMin: 0, yMin: 0, xMax: 30, yMax: 30},
-    restitution: 1.0
+    restitution: 1.0,
+    integrator: new VelocityVerlet()
 })
 
 world.add(new Body({

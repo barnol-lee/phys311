@@ -17,8 +17,6 @@ export class VelocityVerlet {
       b.vel.addScaled(b.acc, 0.5 * dt);
       b.pos.addScaled(b.vel, dt);
     }
-    for (const b of world.bodies) b.clearForce();
-    for (const f of world.forces) f.apply(world);
     for (const b of world.bodies) {
       if (b.isStatic) continue;
       b.acc.set(b.force.x / b.m, b.force.y / b.m);
