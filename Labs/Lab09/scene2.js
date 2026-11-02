@@ -21,7 +21,7 @@ const world = new World({
 
 for (let i = 0; i < 10; i++) {
     world.add(new Body({
-        mass: Math.random()*10,
+        m: Math.random()*10,
         pos: new Vec2(Math.random()*25,Math.random()*25),
         vel: new Vec2(Math.random()*10,Math.random()*10),
         radius: 0.5,
