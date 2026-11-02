@@ -24,3 +24,11 @@
 
 10/18/2026
 1. I think the most difficult part of this lab was working out all the new coding machinery we were supposed to deal with. It was quite a lot to absorb and make use of, although I can of course recognize its utility as it makes short work of our previous labs. Also, the difficulty with that made me feel I was relying too much on the lesson to complete the actual lab. Anyways, most of the issues were just downstream of this.
+
+10/28/2026
+1. 
+
+
+
+11/01/2026
+1. The hardest part of this lab was debugging the engine for all the different things we had to do with it. There was always some slight issue here or there. Some of which I actually broke, fixed, and then broke again, only to finally fix it again later. For example, I was quite confused about the difference between clearForces() and clearForce() or applyForces() and apply(force). Only after running into trouble with that multiple times did the difference finally click with me. Various other bugs abounded, even sign errors. 
