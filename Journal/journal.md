@@ -26,7 +26,7 @@
 1. I think the most difficult part of this lab was working out all the new coding machinery we were supposed to deal with. It was quite a lot to absorb and make use of, although I can of course recognize its utility as it makes short work of our previous labs. Also, the difficulty with that made me feel I was relying too much on the lesson to complete the actual lab. Anyways, most of the issues were just downstream of this.
 
 10/28/2026
-1. 
+1. The most difficult part of this lab was getting used to the accumulator logic and frame dependency. As this was completely new, I had to take some time to wrap my head around it. The camera and html stuff was also quite new so that took a lot of time. The Vec2 class actually made a lot of the physics easy to go from python to javascript, which I know was to some degree by design. Nevertheless, that made things easier.
 
 
 
