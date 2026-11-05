@@ -1,28 +1,4 @@
 import { Vec2 } from './vec2.js';
-
-/* //PART A, 1
-//VECTOR OPERATIONS TEST
-let x = new Vec2(10,5);
-let y = new Vec2(-5,2);
-let z = new Vec2(1,-1);
-
-console.log("Starting Vectors:", x, y, z);
-
-x=x.add(y);
-console.log(x);
-y=y.sub(z);
-console.log(y)
-z=z.mul(7);
-console.log(z);
-y=y.dot(z);
-console.log(y);
-x=x.addTo(x);
-console.log(x);
-
-console.log("Ending Vectors:", x, y, z);
-*/
-
-
 //ENGINE
 
 //WORLD
@@ -173,56 +149,7 @@ class Camera {
 }
 const canvas = document.getElementById("sim");
 const ctx = canvas.getContext("2d");
-const metricsEl = document.getElementById("metrics");
 const camera = new Camera(canvas, 18, -3, -3);
-
-/* //PART A, 2
-CAMERA TEST
-//Line
-ctx.beginPath();
-ctx.strokeStyle = "#4ade80";
-ctx.lineWidth = 2;
-
-const lstart = camera.toScreen({ x: -100, y: 0 });
-const lend = camera.toScreen({ x: 100, y: 0 });
-
-ctx.moveTo(lstart.x, lstart.y);
-ctx.lineTo(lend.x, lend.y);
-ctx.stroke();
-
-//Circle
-const centerWorld = { x: 2, y: 3 };
-const radiusWorld = 0.3;
-
-const centerScreen = camera.toScreen(centerWorld);
-const radiusScreen = radiusWorld * camera.scale;
-
-ctx.beginPath();
-ctx.arc(centerScreen.x, centerScreen.y, radiusScreen, 0, 2 * Math.PI);
-ctx.fillStyle = "#3b82f6";
-ctx.fill();
-ctx.strokeStyle = "#3b82f6";
-ctx.lineWidth = 2;
-ctx.stroke();
-
-//Tick Marks
-ctx.fillStyle = "#64748b";
-
-const worldLeft = camera.toWorld(0, 0).x;
-const worldRight = camera.toWorld(camera.canvas.width, 0).x;
-const worldBottom = camera.toWorld(0, camera.canvas.height).y;
-const worldTop = camera.toWorld(0, 0).y;
-
-for (let x = Math.floor(worldLeft); x <= Math.ceil(worldRight); x++) {
-const xTick = camera.toScreen({ x: x, y: 0 });
-ctx.fillText(`|${x}m`, xTick.x - 3, xTick.y + 3);
-}
-for (let y = Math.floor(worldBottom); y <= Math.ceil(worldTop); y++) {
-    const yTick = camera.toScreen({ x: 0, y: y });
-    ctx.fillText(`— ${y}m`, yTick.x - 4, yTick.y + 4);
-}
-render();
-*/
 
 
 //PART B: The Ported Integrator
@@ -232,10 +159,9 @@ const angleDegrees = 50;
 const angleRadians = angleDegrees * (Math.PI / 180);
 const vx = speed * Math.cos(angleRadians);
 const vy = speed * Math.sin(angleRadians);
+
 const world = new World(new EulerCromer());
-
 world.addForce(new Gravity(-9.81));
-
 const projectile = world.add(new Body({
   mass: 1,
   pos: new Vec2(0, 0),
@@ -245,7 +171,7 @@ const projectile = world.add(new Body({
 }));
 
 //PART C, 1 COMPUTAIION
-console.log("=== COMPUTATION STARTED ===");
+console.log("COMPUTATION STARTED");
 console.log("Time (s) | Pos X (m) | Pos Y (m) | |V| (m/s) | KE (J) | PE (J) | Total E (J)");
 console.log("---------------------------------------------------------------------------------");
 
@@ -292,7 +218,7 @@ console.log("Final Pos Y         : " + finalY.toFixed(3) + " m");
 console.log("Final Vel VX        : " + finalVx.toFixed(3) + " m/s");
 console.log("Final Vel VY        : " + finalVy.toFixed(3) + " m/s");
 console.log("Final Total Energy  : " + finalEnergy.toFixed(3) + " J");
-console.log("=== COMPUTATION COMPLETED ===");
+console.log("COMPUTATION COMPLETED");
 
 
 //RENDER
@@ -362,11 +288,33 @@ function render(world) {
 }
 
 //ACCUMULATOR LOOP
+
 const DT = 1 / 120;        
 const MAX_FRAME = 0.25;  
 
+
+const USE_FIXED_TIMESTEP = true; 
+
 let lastTime = 0;
 let accumulator = 0;
+
+function update(stepSize) {
+  for (const b of world.bodies) {
+    if (!b.hasLanded) {
+      world.step(stepSize);        
+    
+      b.trail.push(b.pos.clone());
+      if (b.trail.length > 200) {
+        b.trail.shift();
+      }
+
+      if (b.pos.y < 0 && b.vel.y < 0) {
+        b.pos.y = 0;
+        b.hasLanded = true; 
+      }
+    }
+  }
+}
 
 function loop(timestamp) {
   if (!lastTime) lastTime = timestamp;
@@ -374,29 +322,21 @@ function loop(timestamp) {
   lastTime = timestamp;
 
   if (frameTime > MAX_FRAME) frameTime = MAX_FRAME;
-  accumulator += frameTime;
 
-  while (accumulator >= DT) {
-    if (!projectile.hasLanded) {
-      world.step(DT);        
-      
-      projectile.trail.push(projectile.pos.clone());
-      if (projectile.trail.length > 200) {
-        projectile.trail.shift();
-      }
+  if (USE_FIXED_TIMESTEP) {
+    accumulator += frameTime;
 
-      if (projectile.pos.y <= 0 && projectile.vel.y < 0) {
-        projectile.pos.y = 0;
-        projectile.vel.set(0, 0);
-        projectile.hasLanded = true; 
-      }
+    while (accumulator >= DT) {
+      update(DT);
+      accumulator -= DT;
     }
-    
-    accumulator -= DT;
+  } else {
+    accumulator = 0;
+    update(frameTime);
   }
 
   render(world);           
   requestAnimationFrame(loop);
 }
-requestAnimationFrame(loop);
 
+requestAnimationFrame(loop);
