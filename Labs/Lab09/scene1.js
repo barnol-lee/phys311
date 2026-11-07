@@ -13,14 +13,13 @@ const ctx = canvas.getContext("2d");
 const camera = new Camera(canvas, 15, -45, -25);
 const render = new Renderer(canvas, camera);
 
-//SCENE 1
 const world = new World({
     bounds: {xMin: -40, yMin: -20, xMax: 40, yMax: 20},
     restitution: 0.8,
     cellSize: 5
 })
 
-for (let i = 0; i < 600; i++) {
+for (let i = 0; i < 1000; i++) {
     world.add(new Body({
         m: 1,
         pos: new Vec2((Math.random()*2-1)*40,(Math.random()*2-1)*20),

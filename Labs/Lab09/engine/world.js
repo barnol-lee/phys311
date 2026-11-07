@@ -10,7 +10,9 @@ export class World {
     this.bounds = bounds;       
     this.time = 0;
     this.restitution = restitution;
-    this.boundsMomentum = new Vec2(0,0);
+    this.boundsLoss = new Vec2(0, 0);
+    this.impulse = new Vec2(0, 0);
+    this.bodyMomentum = new Vec2(0, 0);
     this.dt = dt;
     this.cellSize = cellSize;
   }
@@ -31,26 +33,64 @@ export class World {
     }
   }
 
-  step(dt) {                        
-  this.clearForces();      
-  this.applyForces();     
-  this.integrator.step(this, dt);
-  resolveCollisions(this);  
-  this.time += dt;                                  
+  getMomentum() {
+    const q = new Vec2(0, 0);
+    for (const b of this.bodies) {
+      if (b.isStatic) continue;
+      q.addScaled(b.vel, b.m ?? 1);
+    }
+    return q;
+  }
+
+  getImpulse() {
+    const Imp = new Vec2(0, 0);
+    for (const b of this.bodies) {
+      Imp.addScaled(b.force, this.dt);
+    }
+    return Imp;
+  }
+
+  getKE() {
+    let KE = 0;
+    for (const b of this.bodies) {
+      if (b.isStatic) continue;
+      KE += b.kineticEnergy();
+    }
+    return KE;
+  }
+
+  getPE() {
+    let PE = 0;
+    for (const f of this.forces) {
+      PE += f.potentialEnergy?.(this) ?? 0;
+    }
+    return PE;
+  }
+
+  step(dt) {      
+    this.clearForces();      
+    this.applyForces(); 
+    
+    this.impulse.addTo(this.getImpulse());
+
+    this.integrator.step(this, dt);
+
+    resolveCollisions(this);
+    
+    this.time += dt;                                  
   }
 
   totalEnergy() {
     let E = 0;
-    for (const b of this.bodies) E += b.kineticEnergy();
-    for (const f of this.forces) E += f.potentialEnergy?.(this) ?? 0;
+    E += this.getKE();
+    E += this.getPE();
     return E;
   }
 
   totalMomentum() {
-    const ext = this.boundsMomentum.clone();
-    const p = new Vec2();
-    for (const b of this.bodies) p.addScaled(b.vel, b.m);
-    p.addTo(ext)
+    this.bodyMomentum = this.getMomentum();
+    let p = new Vec2(0, 0);
+    p.addTo(this.bodyMomentum.sub(this.impulse).addTo(this.boundsLoss));
     return p;
   }
 }

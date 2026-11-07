@@ -2,7 +2,7 @@ export class EulerCromer {
   step(world, dt) {
     for (const b of world.bodies) {
       if (b.isStatic) continue;
-      b.acc.set(b.force.x / b.m, b.force.y / b.m);
+      b.acc.set(b.force.x * b.invM, b.force.y * b.invM);
       b.vel.addScaled(b.acc, dt);      
       b.pos.addScaled(b.vel, dt);      
     }}

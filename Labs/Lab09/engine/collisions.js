@@ -20,19 +20,17 @@ export function resolvePair(a, b, e = world.restitution, world) {
   a.vel.addScaled(n, -J * invA);
   b.vel.addScaled(n,  J * invB);
 
-  if (world && world.boundsMomentum) {
-    const impulseVec = n.mul(J);
-    if (a.isStatic) {
-      world.boundsMomentum.addScaled(impulseVec, -1);
-    } else if (b.isStatic) {
-      world.boundsMomentum.addScaled(impulseVec,1);
-    }
+  if (a.isStatic && !b.isStatic) {
+    world.boundsLoss.addScaled(n, -J);
+  }
+  else if (b.isStatic && !a.isStatic) {
+    world.boundsLoss.addScaled(n, J);
   }
 
   const overlap = rSum - dist;
   a.pos.addScaled(n, -overlap * (invA / invSum));
-  b.pos.addScaled(n,  overlap * (invB / invSum));
-  
+  b.pos.addScaled(n, overlap * (invB / invSum));
+
   return true;
 }
 
@@ -46,38 +44,65 @@ export function resolveBoundary(world) {
   
   const res = world.restitution;
 
-  for (const b of world.bodies) {
+   for (const b of world.bodies) {
     if (b.isStatic) continue; 
     const r = b.radius ?? 0;
-    const oldVel = b.vel.clone();
+    const m = b.m ?? 1;
 
     if (b.pos.x - r < xMin) {
-      b.pos.x = xMin + r;       
-      b.vel.x = -b.vel.x * res;
-    } else if (b.pos.x + r > xMax) {
+      b.pos.x = xMin + r; 
+      if (b.vel.x < 0) {
+        const oldVelX = b.vel.x;
+        b.vel.x = -b.vel.x * res;
+        
+        const jx = (b.vel.x - oldVelX) * m;
+        world.boundsLoss.x -= jx;
+      }
+    } 
+    else if (b.pos.x + r > xMax) {
       b.pos.x = xMax - r;
-      b.vel.x = -b.vel.x * res; 
+      if (b.vel.x > 0) {
+        const oldVelX = b.vel.x;
+        b.vel.x = -b.vel.x * res;
+    
+        const jx = (b.vel.x - oldVelX) * m;
+        world.boundsLoss.x -= jx;
+      }
     }
+    
     if (b.pos.y - r < yMin) {
-      b.pos.y = yMin + r;        
-      b.vel.y = -b.vel.y * res; 
-    } else if (b.pos.y + r > yMax) {
-      b.pos.y = yMax - r;           
-      b.vel.y = -b.vel.y * res;
+      b.pos.y = yMin + r; 
+      if (b.vel.y < 0) {
+        const oldVelY = b.vel.y;
+        b.vel.y = -b.vel.y * res;
+        
+        const jy = (b.vel.y - oldVelY) * m;
+        world.boundsLoss.y -= jy;
+      }
+    } 
+    else if (b.pos.y + r > yMax) {
+      b.pos.y = yMax - r; 
+      if (b.vel.y > 0) {
+        const oldVelY = b.vel.y;
+        b.vel.y = -b.vel.y * res;
+        
+        const jy = (b.vel.y - oldVelY) * m;
+        world.boundsLoss.y -= jy;
+      }
     }
-
-    const deltaVel = oldVel.sub(b.vel);
-    world.boundsMomentum.addScaled(deltaVel, b.m ?? 1);
   }
 }
+
 
 export function gridPairs(bodies, cellSize) {
   const cells = new Map();
   const key = (i, j) => `${i},${j}`;
 
+  const OFFSET = 100000;
+
   for (const b of bodies) {
-    const i = Math.floor(b.pos.x / cellSize);
-    const j = Math.floor(b.pos.y / cellSize);
+    const i = Math.floor((b.pos.x + OFFSET) / cellSize);
+    const j = Math.floor((b.pos.y + OFFSET) / cellSize);
     const k = key(i, j);
     if (!cells.has(k)) cells.set(k, []);
     cells.get(k).push(b);
@@ -99,6 +124,10 @@ export function gridPairs(bodies, cellSize) {
 export function resolveCollisions(world) {
   const pairs = gridPairs(world.bodies, world.cellSize);
   
+  if (Math.random() > 0.5) {
+    pairs.toReversed();
+  }
+
   for (const [a, b] of pairs) {
     resolvePair(a, b, world.restitution, world);
   }
