@@ -1,72 +1,93 @@
-canvas.addEventListener("pointerdown", (event) => {
-  console.log("clicked at", event.clientX, event.clientY);
-});
+export class KeyboardInput {
+  constructor(world, spring, camera, actions) {
+    this.world = world; this.spring = spring; this.cam = camera;
+    this.actions = actions;
+    this.selected = null;
+    this._held = null;
+    window.addEventListener('keydown', (e) => this._down(e));
+    window.addEventListener('keyup',   (e) => this._up(e));
+  }
 
-function eventToWorld(event, canvas, camera) {
-  const rect = canvas.getBoundingClientRect();
+  _down(e) {
+    if (e.target.matches('input, select, textarea')) return;
+    const A = this.actions;
+    switch (e.key) {
+      case ' ':      A.togglePause(); e.preventDefault(); break;
+      case 's': case 'S': A.stepOnce(); break;
+      case 'r': case 'R': A.reset(); break;
+      case 't': case 'T': A.toggleTrails(); break;
+      case '+': case '=': this.cam.scale *= 1.15; break;
+      case '-': case '_': this.cam.scale /= 1.15; break;
+      case 'Tab':    this._cycle(e.shiftKey ? -1 : 1); e.preventDefault(); break;
+      case 'ArrowUp': case 'ArrowDown':
+      case 'ArrowLeft': case 'ArrowRight':
+        this._nudge(e.key); e.preventDefault(); break;
+      default:
+        if ('12345'.includes(e.key)) A.preset(Number(e.key) - 1);
+    }
+  }
+  _up(e) {
+    if (e.key.startsWith('Arrow')) { this.spring.release(); this._held = null; }
+  }
 
-  // 1. viewport → canvas pixels (the ratio handles CSS scaling)
-  const px = (event.clientX - rect.left) * (canvas.width  / rect.width);
-  const py = (event.clientY - rect.top ) * (canvas.height / rect.height);
+  _cycle(dir) {
+    const bs = this.world.bodies.filter(b => !b.fixed);
+    if (!bs.length) return;
+    const i = bs.indexOf(this.selected);
+    this.selected = bs[(i + dir + bs.length) % bs.length];
+    this.actions.announce(`Selected body ${this.selected.id}, ` +
+      `position ${this.selected.pos.x.toFixed(1)}, ${this.selected.pos.y.toFixed(1)} metres`);
+  }
 
-  // 2. canvas pixels → physics meters (this is your Lab 8 camera, inverted)
-  return camera.toWorld(px, py);
-}
-
-const keys = new Set();
-window.addEventListener("keydown", e => {
-  keys.add(e.code);
-  if (["Space", "ArrowUp", "ArrowDown"].includes(e.code)) e.preventDefault();
-});
-window.addEventListener("keyup", e => keys.delete(e.code));
-
-// Inside world.step() — a Force like any other
-class ThrustForce {
-  constructor(body, keys, magnitude) { /* ... */ }
-  apply(world) {
-    if (this.keys.has("ArrowUp"))    this.body.force.y += this.mag;
-    if (this.keys.has("ArrowLeft"))  this.body.force.x -= this.mag;
-    if (this.keys.has("ArrowRight")) this.body.force.x += this.mag;
+  _nudge(key) {
+    if (!this.selected) this._cycle(1);
+    if (!this.selected) return;
+    const b = this.selected;
+    const d = 0.35;
+    if (this._held !== b) { this.spring.grab(b, b.pos.x, b.pos.y); this._held = b; }
+    const t = this.spring.target;
+    if (key === 'ArrowUp')    t.y += d;
+    if (key === 'ArrowDown')  t.y -= d;
+    if (key === 'ArrowLeft')  t.x -= d;
+    if (key === 'ArrowRight') t.x += d;
   }
 }
 
-function bodyAt(world, worldPos) {
-  for (let i = world.bodies.length - 1; i >= 0; i--) {   // topmost first
-    const b = world.bodies[i];
-    const pick = Math.max(b.radius, 0.25);   // generous target for touch
-    if (b.pos.sub(worldPos).lengthSq() <= pick * pick) return b;
+export class PointerInput {
+  constructor(canvas, camera, world, spring, { onSpawn = null } = {}) {
+    this.canvas = canvas; this.cam = camera;
+    this.world = world; this.spring = spring;
+    this.onSpawn = onSpawn;
+    this.spawnMode = false;
+    this._bind();
   }
-  return null;
-}
 
-class MouseSpring {
-  constructor() { this.body = null; this.target = null; this.k = 200; this.c = 20; }
-
-  apply(world) {
-    if (!this.body || !this.target) return;
-    const d = this.target.sub(this.body.pos);
-    this.body.force.addScaled(d, this.k * this.body.m);        // spring
-    this.body.force.addScaled(this.body.vel, -this.c * this.body.m); // damping
+  _world(ev) {
+    const r = this.canvas.getBoundingClientRect();
+    return this.cam.toWorld(ev.clientX - r.left, ev.clientY - r.top);
   }
-}
 
-let aimStart = null;
-
-canvas.addEventListener("pointerdown", e => { aimStart = eventToWorld(e, canvas, camera); });
-canvas.addEventListener("pointerup", e => {
-  if (!aimStart) return;
-  const end = eventToWorld(e, canvas, camera);
-  const v = aimStart.sub(end).mul(2.0);       // pull back = launch forward
-  world.add(new Body({ pos: aimStart, vel: v, m: 1, radius: 0.2 }));
-  aimStart = null;
-});
-
-function predictPath(pos, vel, g, steps = 60, dt = 1/30) {
-  const path = [];
-  let p = pos.clone(), v = vel.clone();
-  for (let i = 0; i < steps; i++) {
-    v.y -= g * dt;  p.addScaled(v, dt);        // Euler-Cromer, on a copy
-    path.push(p.clone());
+  _bind() {
+    const c = this.canvas;
+    c.addEventListener('pointerdown', (ev) => {
+      c.setPointerCapture(ev.pointerId);
+      const [x, y] = this._world(ev);
+      if (this.spawnMode) { this.onSpawn && this.onSpawn(x, y); return; }
+      const b = this.world.pick(x, y, 0.15);
+      if (b) { this.spring.grab(b, x, y); c.classList.add('grabbing'); }
+    });
+    c.addEventListener('pointermove', (ev) => {
+      const [x, y] = this._world(ev);
+      if (this.spring.active) this.spring.moveTo(x, y);
+      else c.style.cursor = this.world.pick(x, y, 0.15) ? 'grab' : 'crosshair';
+    });
+    const end = (ev) => {
+      if (this.spring.active) { this.spring.release(); c.classList.remove('grabbing'); }
+      if (c.hasPointerCapture?.(ev.pointerId)) c.releasePointerCapture(ev.pointerId);
+    };
+    c.addEventListener('pointerup', end);
+    c.addEventListener('pointercancel', end);
+    // Releasing outside the window must not leave a body stuck to a ghost finger.
+    window.addEventListener('blur', () => this.spring.release());
   }
-  return path;
 }

@@ -1,70 +1,126 @@
-import { Vec2 } from './engine/vec2.js';
-import { Body } from './engine/body.js';
-import { World } from './engine/world.js';
-import { EulerCromer, VelocityVerlet } from './engine/integrators.js';
-import { Gravity, NewtonGravity, Drag } from './engine/forces.js';
-import { resolvePair, gridPairs, resolveBoundary, resolveCollisions } from './engine/collisions.js';
-import { Camera } from './render/camera.js';
-import { drawHUD } from './render/hud.js';
-import { Renderer } from './render/renderer.js';
+import { Camera }       from './render/camera.js';
+import { Renderer }     from './render/renderer.js';
+import { HUD }          from './render/hud.js';
+import { PointerInput, KeyboardInput }     from './input.js';
+import { StateURL, Controls }     from './ui.js';
+import { SCENES, SCENE_LIST } from './scenes.js';
+import { Body, Vec2 }   from './engine/World.js';
 
-const canvas = document.getElementById("sim");
-const ctx = canvas.getContext("2d");
-const camera = new Camera(canvas, 15, -45, -25);
-const render = new Renderer(canvas, camera);
+const DEFAULTS = {
+  scene: 'billiards', integrator: 'verlet', dt: 1 / 240,
+  restitution: 0.95, gravity: 9.81, drag: 0.0,
+  speed: 1.0, count: 24, trails: true, spawnMode: false
+};
 
-const world = new World({
-    bounds: {xMin: -40, yMin: -20, xMax: 40, yMax: 20},
-    restitution: 0.999,
-    //integrator: new VelocityVerlet()
+const canvas = document.getElementById('sim');
+const live   = document.getElementById('live');
+const cam    = new Camera();
+const render = new Renderer(canvas, cam);
+const hud    = new HUD(document.getElementById('hud'));
 
-})
+render.reducedMotion =
+  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || false;
 
-for (let i = 0; i < 5; i++) {
-    world.add(new Body({
-        m: Math.random()*100+0.01,
-        pos: new Vec2((Math.random()*2-1)*40,(Math.random()*2-1)*20),
-        vel: new Vec2((Math.random()*2-1)*10,(Math.random()*2-1)*10),
-        radius: 0.5,
-        color: `hsl(${Math.random() * 360}, 85%, 55%)`
-}));
+const state = { ...DEFAULTS, ...StateURL.decode(location.hash, DEFAULTS) };
+
+let world = null, view = null, paused = false, lastSubsteps = 0;
+let pointer = null, keyboard = null;
+
+function announce(msg) { live.textContent = msg; }
+
+function build() {
+  const made = SCENES[state.scene] ? SCENES[state.scene](state) : SCENES.billiards(state);
+  world = made.world; view = made.view;
+  world.setIntegrator(state.integrator);
+  render.clearTrails();
+  render.resize();
+  cam.fit(...view);
+  if (pointer)  { pointer.world  = world; pointer.spring  = world.pointer; }
+  if (keyboard) { keyboard.world = world; keyboard.spring = world.pointer;
+                  keyboard.selected = null; }
+  StateURL.write(state);
+  announce(`${state.scene} scene loaded with ${world.bodies.length} bodies, ` +
+           `integrator ${state.integrator}`);
 }
 
-world.addForce(new Gravity(10));
-
-//Accumulator
-const DT = world.dt;       
-const MAX_FRAME = 0.25;   
-
-const E0 = world.totalEnergy();
-const p0 = world.totalMomentum();
-
-let lastTime = 0;
-let accumulator = 0;
-
-function loop(timestamp) {
-  if (!lastTime) lastTime = timestamp;
-  let frameTime = (timestamp - lastTime) / 1000; 
-  lastTime = timestamp;
-
-  if (frameTime > MAX_FRAME) frameTime = MAX_FRAME; 
-  accumulator += frameTime;
-
-  const fps = frameTime > 0 ? 1 / frameTime : 0;
-
-  const t0 = performance.now();
-  while (accumulator >= DT) {
-    world.step(DT);        
-    accumulator -= DT;
+function applyLive() {
+  if (!world) return;
+  world.setIntegrator(state.integrator);
+  world.restitution = state.restitution;
+  for (const f of world.forces) {
+    if (f.constructor.name === 'UniformGravity')  f.g = state.gravity;
+    if (f.constructor.name === 'QuadraticDrag')   f.c = state.drag;
   }
-  const tPhysics = performance.now() - t0;
-
-  const t1 = performance.now();
-  render.draw(world);     
-  const tRender = performance.now() - t1;
-
-  drawHUD(ctx, world, E0, p0, fps, tPhysics, tRender);
-
-  requestAnimationFrame(loop);
+  render.showTrails = state.trails;
+  if (!state.trails) render.clearTrails();
+  if (pointer) pointer.spawnMode = state.spawnMode;
+  StateURL.write(state);
 }
-requestAnimationFrame(loop);
+
+function spawn(x, y) {
+  if (world.bodies.length >= 400) { announce('Body limit reached'); return; }
+  world.add(new Body({ pos: new Vec2(x, y), vel: new Vec2(0, 0),
+                       mass: 1, radius: 0.26, color: '#58a6ff' }));
+  world.markReference();
+  announce(`Body added at ${x.toFixed(1)}, ${y.toFixed(1)} metres`);
+}
+
+const actions = {
+  togglePause() { paused = !paused; controls.setPlayLabel(paused);
+                  announce(paused ? 'Paused' : 'Running'); },
+  stepOnce()    { if (!paused) actions.togglePause();
+                  world.stepOnce(); render.recordTrails(world);
+                  announce(`Stepped to t = ${world.time.toFixed(3)} seconds`); },
+  reset()       { build(); announce('Simulation reset'); },
+  toggleTrails(){ state.trails = !state.trails; controls.syncToDOM(); applyLive(); },
+  preset(i)     { const s = SCENE_LIST[i]; if (!s) return;
+                  state.scene = s[0]; controls.syncToDOM(); build(); },
+  copyLink() {
+    const url = location.origin + location.pathname + StateURL.encode(state);
+    navigator.clipboard?.writeText(url)
+      .then(() => announce('Permalink copied to clipboard'))
+      .catch(() => announce('Copy failed; the URL bar already holds the link'));
+  }
+};
+
+const controls = new Controls(state, {
+  onChange : applyLive,
+  onRebuild: build,
+  onAction : (k) => actions[k] && actions[k]()
+});
+
+build();
+pointer  = new PointerInput(canvas, cam, world, world.pointer, { onSpawn: spawn });
+keyboard = new KeyboardInput(world, world.pointer, cam, { ...actions, announce });
+pointer.spawnMode = state.spawnMode;
+
+window.addEventListener('resize', () => { render.resize(); cam.fit(...view); });
+
+let last = performance.now();
+function frame(now) {
+  hud.tick(now);
+  let dtFrame = (now - last) / 1000;
+  last = now;
+  if (!Number.isFinite(dtFrame) || dtFrame < 0) dtFrame = 0;
+
+  if (!paused) {
+    const r = world.advance(dtFrame * state.speed, 8);
+    lastSubsteps = r.substeps;
+    render.recordTrails(world);
+  } else lastSubsteps = 0;
+
+  render.draw(world, {
+    grabbed: world.pointer.grabbed,
+    target : world.pointer.active ? world.pointer.target : null
+  });
+  hud.update(world, { substeps: lastSubsteps, paused });
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+document.addEventListener('visibilitychange', () => { last = performance.now(); });
+
+window.addEventListener('hashchange', () => {
+  Object.assign(state, StateURL.decode(location.hash, DEFAULTS));
+  controls.syncToDOM(); build();
+});
