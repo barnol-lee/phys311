@@ -10,18 +10,30 @@ export class Gravity {
   }
   potentialEnergy(world) {
     let U = 0;
-    for (const b of world.bodies) U += b.m * this.g * (b.pos.y - world.bounds.yMin);
+    for (const b of world.bodies) U += b.m * this.g * (b.pos.y - world.bounds.ymin);
     return U;
   }
 }
 
 export class Drag {
-  constructor(c = 0.1) { this.c = c; }
+  constructor(c = 0.1, d = 1.0) { this.c = c; this.d = d; }
   apply(world) {
     for (const b of world.bodies) {
+      if (b.isStatic) continue;
       const speed = b.vel.length();
-      if (speed > 0) b.force.addScaled(b.vel, -this.c * speed);
+      if (speed > 0) b.force.addScaled(b.vel, -this.c * (speed ** this.d));
     }
+  }
+  energy() { return 0; }
+  dissipation(bodies) {
+    let P = 0;
+    if (!this.enabled || this.c === 0) return 0;
+    for (const b of bodies) {
+      if (b.isStatic) continue;
+      const s = b.vel.length();
+      P += (this.c * s) ** (this.d + 1);
+    }
+    return P;
   }
 }
 
@@ -42,6 +54,16 @@ export class NewtonGravity {
         bs[j].force.addScaled(d, -F);   
       }
     }
+  }
+  potentialEnergy(bodies) {
+    if (!this.enabled) return 0;
+    let U = 0;
+    for (let i = 0; i < bodies.length; i++)
+      for (let j = i + 1; j < bodies.length; j++) {
+        const r = Math.sqrt(bodies[j].pos.sub(bodies[i].pos).len2() + this.soft ** 2);
+        U -= this.G * bodies[i].mass * bodies[j].mass / r;
+      }
+    return U;
   }
 }
 
@@ -87,5 +109,31 @@ export class Spring {
     
     const s = this.body.pos.sub(anchorPos).length() - this.restLength;
     return 0.5 * this.k * s * s;
+  }
+}
+
+export class PointerSpring {
+  constructor({ k = 120, damp = 8 } = {}) {
+    this.k = k; this.damp = damp;
+    this.grabbed = null;
+    this.target  = new Vec2(0, 0);
+    this.enabled = true;
+  }
+  grab(body, worldX, worldY) { this.grabbed = body; this.target.set(worldX, worldY); }
+  moveTo(worldX, worldY)     { this.target.set(worldX, worldY); }
+  release()                  { this.grabbed = null; }
+  get active()               { return this.enabled && this.grabbed !== null; }
+
+  apply() {
+    if (!this.active) return;
+    const b = this.grabbed;
+    if (b.isStatic) return;
+    const d = this.target.sub(b.pos);
+    const F = d.mul(this.k).sub(b.vel.mul(this.damp));
+    b.apply(F);
+  }
+  pointerEnergy() {
+    if (!this.active) return 0;
+    return 0.5 * this.k * this.target.sub(this.grabbed.pos).lengthSq();
   }
 }

@@ -28,3 +28,15 @@ export class VelocityVerlet {
     }
   }
 }
+
+export class Euler {
+  step(world, dt) {
+    for (const b of world.bodies) {
+      if (b.isStatic) continue;
+      b.acc.set(b.force.x * b.invM, b.force.y * b.invM);
+      b.pos.addScaled(b.vel, dt);  
+      b.vel.addScaled(b.acc, dt);    
+    }}
+}
+
+export const INTEGRATORS = { euler: new Euler, cromer: new EulerCromer, verlet: new VelocityVerlet}

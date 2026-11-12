@@ -37,10 +37,10 @@ export function resolvePair(a, b, e = world.restitution, world) {
 export function resolveBoundary(world) {
   if (!world.bounds) return;
 
-  const xMin = world.bounds.xMin ?? 0;
-  const yMin = world.bounds.yMin ?? 0;
-  const xMax = world.bounds.xMax ?? world.bounds.width;
-  const yMax = world.bounds.yMax ?? world.bounds.height;
+  const xmin = world.bounds.xmin ?? 0;
+  const ymin = world.bounds.ymin ?? 0;
+  const xmax = world.bounds.xmax ?? world.bounds.width;
+  const ymax = world.bounds.ymax ?? world.bounds.height;
   
   const res = world.restitution;
 
@@ -49,8 +49,8 @@ export function resolveBoundary(world) {
     const r = b.radius ?? 0;
     const m = b.m ?? 1;
 
-    if (b.pos.x - r < xMin) {
-      b.pos.x = xMin + r; 
+    if (b.pos.x - r < xmin) {
+      b.pos.x = xmin + r; 
       if (b.vel.x < 0) {
         const oldVelX = b.vel.x;
         b.vel.x = -b.vel.x * res;
@@ -59,8 +59,8 @@ export function resolveBoundary(world) {
         world.boundsLoss.x -= jx;
       }
     } 
-    else if (b.pos.x + r > xMax) {
-      b.pos.x = xMax - r;
+    else if (b.pos.x + r > xmax) {
+      b.pos.x = xmax - r;
       if (b.vel.x > 0) {
         const oldVelX = b.vel.x;
         b.vel.x = -b.vel.x * res;
@@ -70,8 +70,8 @@ export function resolveBoundary(world) {
       }
     }
     
-    if (b.pos.y - r < yMin) {
-      b.pos.y = yMin + r; 
+    if (b.pos.y - r < ymin) {
+      b.pos.y = ymin + r; 
       if (b.vel.y < 0) {
         const oldVelY = b.vel.y;
         b.vel.y = -b.vel.y * res;
@@ -80,8 +80,8 @@ export function resolveBoundary(world) {
         world.boundsLoss.y -= jy;
       }
     } 
-    else if (b.pos.y + r > yMax) {
-      b.pos.y = yMax - r; 
+    else if (b.pos.y + r > ymax) {
+      b.pos.y = ymax - r; 
       if (b.vel.y > 0) {
         const oldVelY = b.vel.y;
         b.vel.y = -b.vel.y * res;

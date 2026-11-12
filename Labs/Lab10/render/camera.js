@@ -1,22 +1,25 @@
-import { Vec2 } from '../engine/vec2.js';
-
 export class Camera {
-  constructor(canvas, scale = 100, originX = 0, originY = 0) {
-    this.canvas = canvas;
-    this.scale = scale;  
-    this.originX = originX;
-    this.originY = originY;
+  constructor({ cx = 0, cy = 0, scale = 30 } = {}) {
+    this.cx = cx; this.cy = cy;          
+    this.scale = scale;                 
+    this.w = 800; this.h = 500;          
   }
-  toScreen(v) {
-    return {
-      x: (v.x - this.originX) * this.scale,
-      y: this.canvas.height - (v.y - this.originY) * this.scale
-    };
+  resize(w, h) { this.w = w; this.h = h; }
+
+  toScreen(x, y) {
+    return [ (x - this.cx) * this.scale + this.w / 2,
+             this.h / 2 - (y - this.cy) * this.scale ];
   }
-  toWorld(px, py) {   
-    return new Vec2(
-      px / this.scale + this.originX,
-      (this.canvas.height - py) / this.scale + this.originY
-    );
+  toWorld(px, py) {
+    return [ (px - this.w / 2) / this.scale + this.cx,
+             (this.h / 2 - py) / this.scale + this.cy ];
+  }
+ 
+  fit(xmin, xmax, ymin, ymax, margin = 1.08) {
+    const sx = this.w / ((xmax - xmin) * margin);
+    const sy = this.h / ((ymax - ymin) * margin);
+    this.scale = Math.min(sx, sy);
+    this.cx = (xmin + xmax) / 2;
+    this.cy = (ymin + ymax) / 2;
   }
 }

@@ -87,7 +87,6 @@ export class PointerInput {
     };
     c.addEventListener('pointerup', end);
     c.addEventListener('pointercancel', end);
-    // Releasing outside the window must not leave a body stuck to a ghost finger.
     window.addEventListener('blur', () => this.spring.release());
   }
 }

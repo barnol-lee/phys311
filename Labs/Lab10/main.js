@@ -1,13 +1,14 @@
 import { Camera }       from './render/camera.js';
 import { Renderer }     from './render/renderer.js';
-import { HUD }          from './render/hud.js';
+import { drawHUD }          from './render/hud.js';
 import { PointerInput, KeyboardInput }     from './input.js';
 import { StateURL, Controls }     from './ui.js';
 import { SCENES, SCENE_LIST } from './scenes.js';
-import { Body, Vec2 }   from './engine/World.js';
+import { Body } from './engine/body.js';
+import { Vec2 } from './engine/vec2.js';
 
 const DEFAULTS = {
-  scene: 'billiards', integrator: 'verlet', dt: 1 / 240,
+  scene: 'billiards', integrator: 'cromer', dt: 1 / 240,
   restitution: 0.95, gravity: 9.81, drag: 0.0,
   speed: 1.0, count: 24, trails: true, spawnMode: false
 };
@@ -16,10 +17,7 @@ const canvas = document.getElementById('sim');
 const live   = document.getElementById('live');
 const cam    = new Camera();
 const render = new Renderer(canvas, cam);
-const hud    = new HUD(document.getElementById('hud'));
-
-render.reducedMotion =
-  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || false;
+const hud    = new drawHUD(document.getElementById('hud'));
 
 const state = { ...DEFAULTS, ...StateURL.decode(location.hash, DEFAULTS) };
 
@@ -48,8 +46,8 @@ function applyLive() {
   world.setIntegrator(state.integrator);
   world.restitution = state.restitution;
   for (const f of world.forces) {
-    if (f.constructor.name === 'UniformGravity')  f.g = state.gravity;
-    if (f.constructor.name === 'QuadraticDrag')   f.c = state.drag;
+    if (f.constructor.name === 'Gravity')  f.g = state.gravity;
+    if (f.constructor.name === 'Drag')   f.c = state.drag;
   }
   render.showTrails = state.trails;
   if (!state.trails) render.clearTrails();

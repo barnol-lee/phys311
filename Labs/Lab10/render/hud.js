@@ -1,64 +1,48 @@
-export function drawHUD(ctx, world, E0, p0, fps, tPhysics, tRender) {
-  const E = world.totalEnergy();
-  const KE = world.getKE();
-  const PE = world.getPE();
-  const p = world.totalMomentum();
-  let Bp = world.bodyMomentum;
-  let imp = world.impulse;
-  let Lp = world.boundsLoss;
-  const dE = E0 === 0 ? 0 : (E - E0) / Math.abs(E0);
-  const dp = p0 === 0 ? 0 : ((p.sub(p0)).length()) / p0.length();
+export class drawHUD {
+  constructor(el) { this.el = el; this.fps = 60; this._last = null; }
 
-  const lines = [
-    `t        = ${world.time.toFixed(2)} s`,
-    `bodies   = ${world.bodies.length}`,
-    `E        = ${E.toFixed(4)} J`,
-    `dE/E0    = ${(dE * 100).toFixed(3)} %`,
-    `KE       = ${KE.toFixed(4)} J`,
-    `PE       = ${PE.toFixed(4)} J`,
-    `|p|      = ${p.length().toFixed(4)}`,
-    `|dp|/|p0|= ${(dp * 100).toFixed(4)} %`,
-    `|p_body| = ${Bp.length().toFixed(4)}`,
-    `Impulse  = ${imp.length().toFixed(4)}`,
-    `|p_bound|= ${Lp.length().toFixed(4)}`,
-    `FPS      = ${Math.round(fps)}`,
-    `tPhysics = ${tPhysics.toFixed(3)} ms`,
-    `tRender  = ${tRender.toFixed(3)} ms`
-  ];
-
-  const paddingX = 14;
-  const paddingY = 14;
-  const startX = 10;
-  const startY = 10;
-  const lineHeight = 17;
-  const totalTextHeight = lines.length * lineHeight;
-  const boxWidth = 210;
-  const boxHeight = totalTextHeight + (paddingY * 2) - 6;
-
-  ctx.save();
-
-  ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
-  ctx.lineWidth = 1;
-
-  if (typeof ctx.roundRect === "function") {
-    ctx.beginPath();
-    ctx.roundRect(startX, startY, boxWidth, boxHeight, 6);
-    ctx.fill();
-    ctx.stroke();
-  } else {
-    ctx.fillRect(startX, startY, boxWidth, boxHeight);
-  }
-  ctx.font = "13px monospace";
-  ctx.textBaseline = "top";
-
-  lines.forEach((line, i) => {
-    if (Math.abs(dE) > 0.01) {
-      ctx.fillStyle = "#f87171";
-    } else {
-      ctx.fillStyle = "#e2e8f0";
+  tick(now) {
+    if (this._last !== null) {
+      const inst = 1000 / Math.max(1e-6, now - this._last);
+      this.fps = this.fps * 0.9 + inst * 0.1;
     }
-    ctx.fillText(line, startX + paddingX, startY + paddingY + (i * lineHeight));
-  });
-  ctx.restore();
+    this._last = now;
+  }
+
+  update(world, { substeps = 0, paused = false } = {}) {
+    const dE = world.driftE();
+    const dP = world.driftP();
+    const bad = Math.abs(dE) > 0.01;
+    const expectP = world.momentumConserved && !(world.pointer && world.pointer.active);
+    const badP = expectP && dP > 1e-6;
+
+    const timeStr   = (world.time ?? 0).toFixed(2);
+    const stepsStr  = world.steps ?? 0;
+    const bodiesStr = world.bodies?.length ?? 0;
+    const keStr     = (typeof world.getKE === 'function' ? (world.getKE() ?? 0) : 0).toFixed(3);
+    const mechStr   = (typeof world.mechE === 'function' ? (world.mechE() ?? 0) : 0).toFixed(3);
+    const inelastic = world.inelastic ?? 0;
+    const dissipated = world.dissipated ?? 0;
+    const lostStr   = (inelastic + dissipated).toFixed(3);
+    const dEStr     = (dE * 100).toFixed(3);
+    const dPStr     = dP.toExponential(2);
+    const fpsStr    = (this.fps ?? 0).toFixed(0);
+
+    this.el.innerHTML = `
+    <span class="k">t</span><span class="v">${timeStr} s</span>
+    <span class="k">steps</span><span class="v">${stepsStr}</span>
+    <span class="k">bodies</span><span class="v">${bodiesStr}</span>
+    <span class="k">KE</span><span class="v">${keStr} J</span>
+    <span class="k">E mech</span><span class="v">${mechStr} J</span>
+    <span class="k">E lost</span><span class="v">${lostStr} J</span>
+    <span class="k">&Delta;E/E₀</span>
+    <span class="v ${bad ? 'bad' : 'ok'}">${dEStr} %</span>
+    <span class="k">&Delta;p/p₀</span>
+    <span class="v ${badP ? 'bad' : (expectP ? 'ok' : 'na')}">${dPStr}${expectP ? '' : ' n/a'}</span>
+    <span class="k">fps</span><span class="v">${fpsStr}</span>
+    <span class="k">sub/frame</span><span class="v">${substeps}${paused ? ' (paused)' : ''}</span>`;
+    
+    this.el.setAttribute('aria-label',
+    `time ${timeStr} seconds, energy drift ${dEStr} percent`);
+    }
 }

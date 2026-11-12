@@ -39,4 +39,6 @@ export class Body {
       this.trail.shift(); 
       }
     }
+
+    static resetIds() { nextId = 1; }
 }
